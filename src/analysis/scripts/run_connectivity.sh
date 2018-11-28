@@ -100,20 +100,6 @@ update_status "METRICS" "Access: population"
   -v score3=0.8 \
   -f ../connectivity/access_population.sql
 
-update_status "METRICS" "Access: jobs"
-/usr/bin/time psql -h "${NB_POSTGRESQL_HOST}" -U "${NB_POSTGRESQL_USER}" -d "${NB_POSTGRESQL_DB}" \
-  -f ../connectivity/census_block_jobs.sql
-
-/usr/bin/time psql -h "${NB_POSTGRESQL_HOST}" -U "${NB_POSTGRESQL_USER}" -d "${NB_POSTGRESQL_DB}" \
-  -v max_score=1 \
-  -v step1=0.03 \
-  -v score1=0.1 \
-  -v step2=0.2 \
-  -v score2=0.4 \
-  -v step3=0.5 \
-  -v score3=0.8 \
-  -f ../connectivity/access_jobs.sql
-
 update_status "METRICS" "Destinations"
 /usr/bin/time psql -h "${NB_POSTGRESQL_HOST}" -U "${NB_POSTGRESQL_USER}" -d "${NB_POSTGRESQL_DB}" \
   -v nb_output_srid="${NB_OUTPUT_SRID}" \

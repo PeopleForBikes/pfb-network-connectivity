@@ -38,16 +38,6 @@ SELECT  'people',
 FROM    neighborhood_score_inputs
 WHERE   use_pop;
 
--- employment
-INSERT INTO generated.neighborhood_overall_scores (
-    score_id, score_original, human_explanation
-)
-SELECT  'opportunity_employment',
-        COALESCE(neighborhood_score_inputs.score,0),
-        neighborhood_score_inputs.human_explanation
-FROM    neighborhood_score_inputs
-WHERE   use_emp;
-
 -- k12 education
 INSERT INTO generated.neighborhood_overall_scores (
     score_id, score_original, human_explanation
@@ -83,30 +73,38 @@ INSERT INTO generated.neighborhood_overall_scores (
     score_id, score_original, human_explanation
 )
 SELECT  'opportunity',
-        (
-            0.35 * (SELECT score_original FROM neighborhood_overall_scores WHERE score_id = 'opportunity_employment')
-            + 0.35 * (SELECT score_original FROM neighborhood_overall_scores WHERE score_id = 'opportunity_k12_education')
-            + 0.1 * (select score_original from neighborhood_overall_scores where score_id = 'opportunity_technical_vocational_college')
-            + 0.2 * (SELECT score_original FROM neighborhood_overall_scores WHERE score_id = 'opportunity_higher_education')
-        ) /
-        (
-            0.35
-            +   CASE
-                WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE schools_high_stress > 0)
-                    THEN 0.35
-                ELSE 0
-                END
-            +   CASE
-                WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE colleges_high_stress > 0)
-                    THEN 0.1
-                ELSE 0
-                END
-            +   CASE
-                WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE universities_high_stress > 0)
-                    THEN 0.2
-                ELSE 0
-                END
-        ),
+        CASE
+        WHEN EXISTS (
+            SELECT  1
+            FROM    neighborhood_census_blocks
+            WHERE   schools_high_stress > 0
+            OR      colleges_high_stress > 0
+            OR      universities_high_stress > 0
+        )
+            THEN    (
+                        0.55 * (SELECT score_original FROM neighborhood_overall_scores WHERE score_id = 'opportunity_k12_education')
+                        + 0.15 * (select score_original from neighborhood_overall_scores where score_id = 'opportunity_technical_vocational_college')
+                        + 0.3 * (SELECT score_original FROM neighborhood_overall_scores WHERE score_id = 'opportunity_higher_education')
+                    ) /
+                    (
+                        CASE
+                        WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE schools_high_stress > 0)
+                            THEN 0.55
+                        ELSE 0
+                        END
+                        +   CASE
+                            WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE colleges_high_stress > 0)
+                                THEN 0.15
+                            ELSE 0
+                            END
+                        +   CASE
+                            WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE universities_high_stress > 0)
+                                THEN 0.30
+                            ELSE 0
+                            END
+                    )
+        ELSE NULL
+        END,
         NULL;
 
 -- doctors

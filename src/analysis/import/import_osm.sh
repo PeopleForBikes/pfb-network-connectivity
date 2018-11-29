@@ -165,6 +165,9 @@ echo 'Clipping OSM source data to boundary + buffer'
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
     -v nb_boundary_buffer="${NB_BOUNDARY_BUFFER}" \
     -f ./clip_osm.sql
+echo 'Removing paths that prohibit bicycles'
+psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
+-c "DELETE FROM neighborhood_osm_full_line WHERE bicycle='no' and highway='path';"
 echo 'Setting values on road segments'
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} -f ../features/one_way.sql
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} -f ../features/width_ft.sql

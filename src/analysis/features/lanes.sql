@@ -15,7 +15,7 @@ SET     ft_lanes =
                                     ),
                                     1       -- only one dimension
                                 )
-                    WHEN osm."turn:lanes" IS NOT NULL AND one_way = 'ft'
+                    WHEN osm."turn:lanes" IS NOT NULL AND one_way_car = 'ft'
                         THEN    array_length(
                                     regexp_split_to_array(
                                         osm."turn:lanes",
@@ -25,9 +25,9 @@ SET     ft_lanes =
                                 )
                     WHEN osm."lanes:forward" IS NOT NULL
                         THEN    substring(osm."lanes:forward" FROM '\d+')::INT
-                    WHEN osm."lanes" IS NOT NULL AND one_way = 'ft'
+                    WHEN osm."lanes" IS NOT NULL AND one_way_car = 'ft'
                         THEN    substring(osm."lanes" FROM '\d+')::INT
-                    WHEN osm."lanes" IS NOT NULL
+                    WHEN osm."lanes" IS NOT NULL AND one_way_car = NULL
                         THEN    ceil(substring(osm."lanes" FROM '\d+')::FLOAT / 2)
                     END,
         tf_lanes =
@@ -39,7 +39,7 @@ SET     ft_lanes =
                                             ),
                                             1       -- only one dimension
                                         )
-                            WHEN osm."turn:lanes" IS NOT NULL AND one_way = 'tf'
+                            WHEN osm."turn:lanes" IS NOT NULL AND one_way_car = 'tf'
                                 THEN    array_length(
                                             regexp_split_to_array(
                                                 osm."turn:lanes",
@@ -49,9 +49,9 @@ SET     ft_lanes =
                                         )
                             WHEN osm."lanes:backward" IS NOT NULL
                                 THEN    substring(osm."lanes:backward" FROM '\d+')::INT
-                            WHEN osm."lanes" IS NOT NULL AND one_way = 'tf'
+                            WHEN osm."lanes" IS NOT NULL AND one_way_car = 'tf'
                                 THEN    substring(osm."lanes" FROM '\d+')::INT
-                            WHEN osm."lanes" IS NOT NULL
+                            WHEN osm."lanes" IS NOT NULL AND one_way_car = NULL
                                 THEN    ceil(substring(osm."lanes" FROM '\d+')::FLOAT / 2)
                             END,
         ft_cross_lanes =
@@ -66,7 +66,7 @@ SET     ft_lanes =
                                     ),
                                     1               -- only one dimension
                                 )
-                    WHEN osm."turn:lanes" IS NOT NULL AND one_way = 'ft'
+                    WHEN osm."turn:lanes" IS NOT NULL AND one_way_car = 'ft'
                         THEN    array_length(
                                     array_remove(
                                         regexp_split_to_array(
@@ -79,9 +79,9 @@ SET     ft_lanes =
                                 )
                     WHEN osm."lanes:forward" IS NOT NULL
                         THEN    substring(osm."lanes:forward" FROM '\d+')::INT
-                    WHEN osm."lanes" IS NOT NULL AND one_way = 'ft'
+                    WHEN osm."lanes" IS NOT NULL AND one_way_car = 'ft'
                         THEN    substring(osm."lanes" FROM '\d+')::INT
-                    WHEN osm."lanes" IS NOT NULL
+                    WHEN osm."lanes" IS NOT NULL AND one_way_car = NULL
                         THEN    ceil(substring(osm."lanes" FROM '\d+')::FLOAT / 2)
                     END,
         tf_cross_lanes =
@@ -96,7 +96,7 @@ SET     ft_lanes =
                                     ),
                                     1               -- only one dimension
                                 )
-                    WHEN osm."turn:lanes" IS NOT NULL AND one_way = 'tf'
+                    WHEN osm."turn:lanes" IS NOT NULL AND one_way_car = 'tf'
                         THEN    array_length(
                                     array_remove(
                                         regexp_split_to_array(
@@ -109,9 +109,9 @@ SET     ft_lanes =
                                 )
                     WHEN osm."lanes:backward" IS NOT NULL
                         THEN    substring(osm."lanes:backward" FROM '\d+')::INT
-                    WHEN osm."lanes" IS NOT NULL AND one_way = 'tf'
+                    WHEN osm."lanes" IS NOT NULL AND one_way_car = 'tf'
                         THEN    substring(osm."lanes" FROM '\d+')::INT
-                    WHEN osm."lanes" IS NOT NULL
+                    WHEN osm."lanes" IS NOT NULL AND one_way_car = NULL
                         THEN    ceil(substring(osm."lanes" FROM '\d+')::FLOAT / 2)
                     END,
         twltl_cross_lanes =

@@ -330,7 +330,16 @@ SELECT  'overall_score',
             + :transit * COALESCE((SELECT score_original FROM neighborhood_overall_scores WHERE score_id = 'transit'),0)
         ) /
         (
-            :people + :opportunity
+            :people 
+            +   CASE
+                WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE schools_high_stress > 0)
+                    THEN :opportunity
+                WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE colleges_high_stress > 0)
+                    THEN :opportunity
+                WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE universities_high_stress > 0)
+                    THEN :opportunity
+                ELSE 0
+                END
             +   CASE
                 WHEN EXISTS (SELECT 1 FROM neighborhood_census_blocks WHERE doctors_high_stress > 0)
                     THEN :core_services

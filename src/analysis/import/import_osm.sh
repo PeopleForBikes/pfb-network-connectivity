@@ -258,17 +258,17 @@ echo 'Calculating stress'
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} -f ../stress/stress_motorway-trunk.sql
 # primary
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
-    -v class=primary -v default_speed=40 -v default_lanes=2 \
+    -v class=primary -v default_speed=65 -v default_lanes=2 \
     -v default_parking=1 -v default_parking_width=8 -v default_facility_width=5 \
     -f ../stress/stress_segments_higher_order.sql
 # secondary
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
-    -v class=secondary -v default_speed=40 -v default_lanes=2 \
+    -v class=secondary -v default_speed=65 -v default_lanes=2 \
     -v default_parking=1 -v default_parking_width=8 -v default_facility_width=5 \
     -f ../stress/stress_segments_higher_order.sql
 # tertiary
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
-    -v class=tertiary -v default_speed=30 -v default_lanes=1 \
+    -v class=tertiary -v default_speed=50 -v default_lanes=1 \
     -v default_parking=1 -v default_parking_width=8 -v default_facility_width=5 \
     -f ../stress/stress_segments_higher_order.sql
 # residential
@@ -279,7 +279,7 @@ psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
     -f ../stress/stress_segments_lower_order_res.sql
 # unclassified
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
-    -v class=unclassified -v default_speed=25 -v default_lanes=1 \
+    -v class=unclassified -v default_speed=40 -v default_lanes=1 \
     -v default_parking=1 -v default_roadway_width=27 \
     -f ../stress/stress_segments_lower_order.sql
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} -f ../stress/stress_living_street.sql
@@ -291,15 +291,15 @@ psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} -f .
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} -f ../stress/stress_secondary_ints.sql
 # tertiary intersections
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
-    -v primary_speed=40 \
-    -v secondary_speed=40 \
+    -v primary_speed=65 \
+    -v secondary_speed=65 \
     -v primary_lanes=2 \
     -v secondary_lanes=2 \
     -f ../stress/stress_tertiary_ints.sql
 psql -h $NB_POSTGRESQL_HOST -U ${NB_POSTGRESQL_USER} -d ${NB_POSTGRESQL_DB} \
-    -v primary_speed=40 \
-    -v secondary_speed=40 \
-    -v tertiary_speed=30 \
+    -v primary_speed=65 \
+    -v secondary_speed=65 \
+    -v tertiary_speed=50 \
     -v primary_lanes=2 \
     -v secondary_lanes=2 \
     -v tertiary_lanes=1 \

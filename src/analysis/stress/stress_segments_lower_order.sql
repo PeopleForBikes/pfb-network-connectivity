@@ -15,7 +15,7 @@ WHERE   functional_class = :'class';
 UPDATE  received.neighborhood_ways
 SET     ft_seg_stress =
             CASE
-            WHEN COALESCE(speed_limit,:default_speed) = 25
+            WHEN COALESCE(speed_limit,:default_speed) = 40  
                 THEN    CASE
                         WHEN COALESCE(ft_park,:default_parking) + COALESCE(tf_park,:default_parking) = 2    -- parking on both sides
                             THEN    CASE
@@ -29,12 +29,12 @@ SET     ft_seg_stress =
                                 ELSE 2
                                 END
                         END
-            WHEN COALESCE(speed_limit,:default_speed) <= 20 THEN 1
+            WHEN COALESCE(speed_limit,:default_speed) <= 30 THEN 1
             ELSE 3
             END,
         tf_seg_stress =
             CASE
-            WHEN COALESCE(speed_limit,:default_speed) = 25
+            WHEN COALESCE(speed_limit,:default_speed) = 40
                 THEN    CASE
                         WHEN COALESCE(ft_park,:default_parking) + COALESCE(tf_park,:default_parking) = 2    -- parking on both sides
                             THEN    CASE
@@ -48,7 +48,7 @@ SET     ft_seg_stress =
                                 ELSE 2
                                 END
                         END
-            WHEN COALESCE(speed_limit,:default_speed) <= 20 THEN 1
+            WHEN COALESCE(speed_limit,:default_speed) <= 30 THEN 1
             ELSE 3
             END
 WHERE   functional_class = :'class';

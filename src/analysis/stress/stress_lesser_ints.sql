@@ -38,8 +38,8 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,:primary_lanes) + COALESCE(w.tf_lanes,:primary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 40 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 65 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -48,7 +48,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:primary_lanes) + COALESCE(w.tf_lanes,:primary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 55
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -61,8 +61,8 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,:primary_lanes) + COALESCE(w.tf_lanes,:primary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) = 30
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) = 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -71,7 +71,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:primary_lanes) + COALESCE(w.tf_lanes,:primary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -91,12 +91,12 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:primary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 40 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 65 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:primary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 35 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 55 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             END
@@ -105,12 +105,12 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:primary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:primary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             END
@@ -126,8 +126,8 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,:secondary_lanes) + COALESCE(w.tf_lanes,:secondary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 40 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 65 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -136,7 +136,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:secondary_lanes) + COALESCE(w.tf_lanes,:secondary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 55
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -149,8 +149,8 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,:secondary_lanes) + COALESCE(w.tf_lanes,:secondary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) = 30
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) = 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -159,7 +159,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:secondary_lanes) + COALESCE(w.tf_lanes,:secondary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -179,12 +179,12 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 40 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 65 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 55
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END
@@ -194,12 +194,12 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END
@@ -216,8 +216,8 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,:tertiary_lanes) + COALESCE(w.tf_lanes,:tertiary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 40 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 65 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -226,7 +226,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:tertiary_lanes) + COALESCE(w.tf_lanes,:tertiary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 55
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -239,8 +239,8 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,:tertiary_lanes) + COALESCE(w.tf_lanes,:tertiary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) = 30
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) = 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -249,7 +249,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:tertiary_lanes) + COALESCE(w.tf_lanes,:tertiary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -269,12 +269,12 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:tertiary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 40 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 65 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:tertiary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 55
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END
@@ -284,12 +284,12 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:tertiary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:tertiary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END
@@ -325,8 +325,8 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,:primary_lanes) + COALESCE(w.tf_lanes,:primary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 40 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 65 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -335,7 +335,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:primary_lanes) + COALESCE(w.tf_lanes,:primary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 55
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -348,8 +348,8 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,:primary_lanes) + COALESCE(w.tf_lanes,:primary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) = 30
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) = 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -358,7 +358,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:primary_lanes) + COALESCE(w.tf_lanes,:primary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -378,12 +378,12 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:primary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 40 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 65 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:primary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 35 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 55 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             END
@@ -392,12 +392,12 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:primary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:primary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 30 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:primary_speed) > 50 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             END
@@ -413,8 +413,8 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,:secondary_lanes) + COALESCE(w.tf_lanes,:secondary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 40 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 65 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -423,7 +423,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:secondary_lanes) + COALESCE(w.tf_lanes,:secondary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 55
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -436,8 +436,8 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,:secondary_lanes) + COALESCE(w.tf_lanes,:secondary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) = 30
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) = 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -446,7 +446,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:secondary_lanes) + COALESCE(w.tf_lanes,:secondary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -466,12 +466,12 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 40 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 65 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 55
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END
@@ -481,12 +481,12 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 50
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END
@@ -503,8 +503,8 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,:tertiary_lanes) + COALESCE(w.tf_lanes,:tertiary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 40 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 65 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -513,7 +513,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:tertiary_lanes) + COALESCE(w.tf_lanes,:tertiary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 55
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -526,8 +526,8 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,:tertiary_lanes) + COALESCE(w.tf_lanes,:tertiary_lanes) = 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30 THEN TRUE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) = 30
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) = 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -536,7 +536,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,:tertiary_lanes) + COALESCE(w.tf_lanes,:tertiary_lanes) < 4
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50
                                                             THEN    CASE
                                                                     WHEN i.island THEN FALSE
                                                                     ELSE TRUE
@@ -556,12 +556,12 @@ AND     EXISTS (
                                     THEN    CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:tertiary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 40 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 65 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:tertiary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 35
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 55
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END
@@ -571,12 +571,12 @@ AND     EXISTS (
                                 ELSE        CASE
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:tertiary_lanes) = 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30 THEN TRUE
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50 THEN TRUE
                                                         ELSE FALSE
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:tertiary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 30
+                                                        WHEN COALESCE(w.speed_limit,:tertiary_speed) > 50
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END

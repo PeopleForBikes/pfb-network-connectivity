@@ -12,5 +12,5 @@ AND     (
         OR  tf_bike_infra IN ('track','buffered_lane','lane')
         OR  ft_lanes > 1
         OR  tf_lanes > 1
-        OR  speed_limit >= 30
+        OR  speed_limit >= 50
         );

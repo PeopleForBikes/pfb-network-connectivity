@@ -182,7 +182,7 @@ AND     EXISTS (
                                                         END
                                             WHEN COALESCE(w.ft_lanes,w.tf_lanes,:secondary_lanes) < 2
                                                 THEN    CASE
-                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 65
+                                                        WHEN COALESCE(w.speed_limit,:secondary_speed) > 55
                                                             THEN TRUE
                                                         ELSE FALSE
                                                         END

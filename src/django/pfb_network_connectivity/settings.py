@@ -309,22 +309,6 @@ else:
     raise ImproperlyConfigured('env.PFB_AWS_BATCH_ANALYSIS_JOB_DEFINITION_NAME_REVISION or ' +
                                'env.PFB_AWS_BATCH_ANALYSIS_JOB_DEFINITION_NAME is required.')
 
-# Same setup for tilemaker jobs as for analysis jobs
-PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME = os.getenv('PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME')
-if not PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME:
-    raise ImproperlyConfigured('env.PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME is required')
-PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME_REVISION = os.getenv('PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME_REVISION')
-PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME = os.getenv('PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME')
-if PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME_REVISION:
-    pass
-elif PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME:
-    revision = get_latest_job_definition(PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME)['revision']
-    PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME_REVISION = (
-        '{}:{}'.format(PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME, revision))
-else:
-    raise ImproperlyConfigured('env.PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME_REVISION or ' +
-                               'env.PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME is required.')
-
 
 # Analysis results settings
 # A list of destinations types, created by the analysis, to be made available for download
@@ -346,11 +330,7 @@ PFB_ANALYSIS_DESTINATIONS = [
 # Length of time in seconds that S3 pre-signed urls are valid for
 PFB_ANALYSIS_PRESIGNED_URL_EXPIRES = 3600
 
-# Toggle for whether to use the dynamic tileserver or the S3 tiles. Terraform casts to integer
-# but not always (https://www.terraform.io/docs/configuration/variables.html#booleans) and
-# in development it'll be a string.
-USE_TILEGARDEN = os.getenv('PFB_USE_TILEGARDEN', 'false').lower() in ('true', '1')
 # Root URL for tile server.
 TILEGARDEN_ROOT = os.getenv('PFB_TILEGARDEN_ROOT')
-if USE_TILEGARDEN and not TILEGARDEN_ROOT:
-    raise ImproperlyConfigured('env.PFB_TILEGARDEN_ROOT is required when USE_TILEGARDEN is true')
+if not TILEGARDEN_ROOT:
+    raise ImproperlyConfigured('env.PFB_TILEGARDEN_ROOT is required')

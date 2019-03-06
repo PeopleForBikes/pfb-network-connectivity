@@ -6,8 +6,6 @@ aws_profile: pfb
 # AWS Batch development settings
 pfb_aws_batch_analysis_job_queue_name: "name_of_batch_analysis_job_queue"
 pfb_aws_batch_analysis_job_definition_name: "staging-pfb-analysis-run-job"
-pfb_aws_batch_tilemaker_job_queue_name: "name_of_batch_tilemaker_job_queue"
-pfb_aws_batch_tilemaker_job_definition_name: "staging-pfb-tilemaker-run-job"
 
 # azavea.docker
 # 1.12.* to match AWS ECS

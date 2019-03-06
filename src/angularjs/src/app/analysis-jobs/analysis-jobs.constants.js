@@ -31,14 +31,6 @@
             short: 'Exporting',
             long: 'Exporting Results'
         },
-        EXPORTED: {
-            short: 'Exported',
-            long: 'Analysis Finished'
-        },
-        TILING: {
-            short: 'Tiling',
-            long: 'Generating Map Tiles'
-        },
         COMPLETE: {
             short: 'Complete',
             long: 'Complete'

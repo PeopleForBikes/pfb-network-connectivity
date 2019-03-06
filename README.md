@@ -38,7 +38,7 @@ cp deployment/ansible/group_vars/all.example deployment/ansible/group_vars/all
 ```
 
 If you want to run the full development application and you've configured AWS credentials, copy the appropriate values at the links below into `deployment/ansible/group_vars/all`, choosing the resources with 'staging' in the name:
-- [AWS Batch Job Queues](https://console.aws.amazon.com/batch/home?region=us-east-1#/queues): Copy the staging `analysis` and `tilemaker` job queue names to the appropriate equivalent group var setting.
+- [AWS Batch Job Queue](https://console.aws.amazon.com/batch/home?region=us-east-1#/queues): Copy the staging `analysis` job queue name to the equivalent group var setting.
 
 If you don't have access to the console, or just want to run a local analysis, copying the values into `group_vars/all` can be skipped.
 
@@ -96,8 +96,8 @@ systems+pfb@azavea.com / root
 
 ## Running the Analysis
 
-On creating a local anaylsis job in the admin UI, the Django logs will print the appropriate commands
-to run in the VM console to actually run the analysis and tiling jobs locally.
+On creating a local anaylsis job in the admin UI, the Django logs will print the appropriate command
+to run in the VM console to actually run the analysis jobs locally.
 
 See [Running the Analysis Locally](README.LOCAL-ANALYSIS.md) for details.
 

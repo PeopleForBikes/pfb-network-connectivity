@@ -48,13 +48,8 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
                     update-job-defs \
                     "${ENVIRONMENT}-pfb-analysis-run-job.json" \
                     "${PFB_AWS_ECR_ENDPOINT}/pfb-analysis:${GIT_COMMIT}")
-                BATCH_TILEMAKER_JOB_NAME_REVISION=$(docker-compose run --rm \
-                    update-job-defs \
-                    "${ENVIRONMENT}-pfb-tilemaker-run-job.json" \
-                    "${PFB_AWS_ECR_ENDPOINT}/pfb-tilemaker:${GIT_COMMIT}")
 
                 echo "Analysis Task Name:Revision -- ${BATCH_ANALYSIS_JOB_NAME_REVISION}"
-                echo "Tilemaker Task Name:Revision -- ${BATCH_TILEMAKER_JOB_NAME_REVISION}"
                 popd
 
                 docker-compose run --rm \
@@ -71,7 +66,6 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
                           -var-file="${PFB_SETTINGS_BUCKET}.tfvars" \
                           -var="git_commit=\"${GIT_COMMIT}\"" \
                           -var="batch_analysis_job_definition_name_revision=${BATCH_ANALYSIS_JOB_NAME_REVISION}" \
-                          -var="batch_tilemaker_job_definition_name_revision=${BATCH_TILEMAKER_JOB_NAME_REVISION}" \
                           -out="${PFB_SETTINGS_BUCKET}.tfplan"
                 ;;
             apply)

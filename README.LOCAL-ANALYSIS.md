@@ -46,7 +46,7 @@ This will take up to an hour, so just let it work.
 
 ### Using local files
 
-The analysis can also gets its input data from local files.  To run the analysis using the
+The analysis can also get its input data from local files.  To run the analysis using the
 same Boulder boundary and a pre-downloaded OSM file, download
 [the zipped shapefile](https://s3.amazonaws.com/test-pfb-inputs/boulder/boulder.zip)
 and extract it to `./data/`.
@@ -161,3 +161,30 @@ Each analysis run takes up a significant amount of limited VM disk space. To cle
 ```
 ./scripts/clean-analysis-volumes
 ```
+
+## Importing local analysis results into the BNA site
+
+The results of analysis jobs run locally can be imported and displayed on the [BNA site](https://bna.peopleforbikes.org/).
+
+To do so, first [create a Neighborhood](https://bna.peopleforbikes.org/#/admin/neighborhoods/create/)
+(if it doesn't already exist on the site) using the boundary shapefile you used for the analysis.
+Then go to the ["Import Analysis Results" page](https://bna.peopleforbikes.org/#/admin/analysis-jobs/import/),
+select the neighborhood, and provide a URL to a zip file containing the local analysis results.
+
+The results zip file should contain all the files saved by the analysis.  For a local analysis run,
+that will be the contents of the directory set as `NB_OUTPUT_DIR` for the analysis.  For a job run
+remotely, the files can be downloaded from the "Data" section of the job details page or from the
+`results/JOB_ID/` folder in the site's results S3 bucket.  The zip file should contain only the
+files, with no internal directory structure.  Since the resulting file is too large to be uploaded
+and processed within a single request/response cycle, it must be provided via URL.  The [results
+storage bucket on S3](https://s3.amazonaws.com/production-pfb-storage-us-east-1/) is set up to be
+publicly accessible via URL, so uploading the zipped results to a folder within that bucket works well.
+
+When an import request is submitted, the server creates a new analysis job instance then downloads
+the results and attaches them to the job.  This process takes less than a minute, and can be monitored
+on the Analysis Job detail page, where it will initially show "status: CREATED" and "local upload task
+status: IMPORTING".  When both statuses have changed to "COMPLETE", the import is finished and the
+analysis results will appear on the site.
+
+If the import fails, for example due to a file being missing from the results .zip, the statuses
+will change to "ERROR" and the "local upload task error" field will provide more details.

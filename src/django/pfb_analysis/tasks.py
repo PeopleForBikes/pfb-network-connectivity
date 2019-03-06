@@ -119,10 +119,7 @@ def upload_local_analysis(local_upload_task_uuid):
         task.status = AnalysisLocalUploadTask.Status.COMPLETE
         task.save()
 
-        if settings.USE_TILEGARDEN:
-            task.job.update_status(AnalysisJob.Status.COMPLETE)
-        else:
-            task.job.generate_tiles()
+        task.job.update_status(AnalysisJob.Status.COMPLETE)
 
         logging.info('Successfully completed upload task {uuid}'.format(
             uuid=local_upload_task_uuid))

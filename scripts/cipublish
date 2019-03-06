@@ -39,14 +39,11 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
                    "${PFB_AWS_ECR_ENDPOINT}/pfb-app:${GIT_COMMIT}"
             docker tag "pfb-analysis:${GIT_COMMIT}" \
                    "${PFB_AWS_ECR_ENDPOINT}/pfb-analysis:${GIT_COMMIT}"
-            docker tag "pfb-tilemaker:${GIT_COMMIT}" \
-                   "${PFB_AWS_ECR_ENDPOINT}/pfb-tilemaker:${GIT_COMMIT}"
 
 
             docker push "${PFB_AWS_ECR_ENDPOINT}/pfb-nginx:${GIT_COMMIT}"
             docker push "${PFB_AWS_ECR_ENDPOINT}/pfb-app:${GIT_COMMIT}"
             docker push "${PFB_AWS_ECR_ENDPOINT}/pfb-analysis:${GIT_COMMIT}"
-            docker push "${PFB_AWS_ECR_ENDPOINT}/pfb-tilemaker:${GIT_COMMIT}"
         else
             echo "ERROR: No PFB_AWS_ECR_ENDPOINT variable defined."
             exit 1

@@ -28,6 +28,23 @@ You will be prompted to enter your AWS credentials, along with a default region.
 
 ## Terraform
 
+### Setup
+
+Make sure there is a `terraform/terraform.tfvars` file in the project config bucket on S3 for the
+environment you're deploying (i.e. `s3://{environment}-pfb-config-us-east-1/terraform/terraform.tfvars`).
+If you're creating a new environment, make a new file via copy/paste/modify or by defining all the
+variables specified in [terraform/variables.tf](terraform/variables.tf).  If you're updating an environment and need to
+add or change variables, download the file:
+```
+export ENVIRONMENT="staging|production"
+aws s3 cp "s3://${ENVIRONMENT}-pfb-config-us-east-1/terraform/terraform.tfvars" "${ENVIRONMENT}.tfvars"
+```
+Then edit the file and upload the modified copy, using default server-side encryption:
+```
+aws s3 cp "${ENVIRONMENT}.tfvars" "s3://${ENVIRONMENT}-pfb-config-us-east-1/terraform/terraform.tfvars" --sse
+```
+
+### Deploying
 If you're deploying new application code, first set the commit to deploy, then build and push containers:
 ```bash
 vagrant@vagrant-ubuntu-trusty-64:~$ export GIT_COMMIT="<short-commit-to-deploy>"
@@ -78,8 +95,6 @@ Next, go to 'Job queues' -> 'Create queue' then edit the form with the inputs be
 - Select a compute environment: Choose the name of the environment you just created
 Click create. The job queue should be ready pretty much immediately.
 
-Click 'Create queue' again and follow the same steps to create a second queue named `<environment>-pfb-tilemaker-job-queue`.
-
 Once the unmanaged compute environment has a 'VALID' status, navigate to [EC2 Container Service](https://console.aws.amazon.com/ecs/home?region=us-east-1) and copy the full name of the newly created ECS Cluster into the `batch_ecs_cluster_name` tfvar for the appropriate environment.
 
 Congratulations, the necessary resources for your environment are ready. The ECS instance configuration and autoscaling group attached to the compute environment are managed by Terraform.
@@ -114,11 +129,14 @@ the Lambda function. Copy over the example file to create a new one:
 $ cp ./src/tilegarden/.env.example ./src/tilegarden/.env
 ```
 
-The three required variables are `AWS_PROFILE`, `PROJECT_NAME`, and
-`LAMBDA_REGION`. Other optional variables can be uncommented and edited to
-reflect your configuration. If you need Tilegarden to access a database, for
-example, you'll likely want to set `LAMBDA_SUBNETS` and `LAMBDA_SECURITY_GROUPS` to point
-to the relevant resources in your VPC.
+Edit the new file to fill in or adjust variables.  The required variables are:
+- `AWS_PROFILE`: the name of the AWS credentials profile you created above, e.g. "pfb"
+- `PROJECT_NAME`: a name to identify this deployment, which should include the environment name
+- `LAMBDA_REGION`
+- `LAMBDA_ROLE`: the role the Lambda function should run under. Use the one created by Terraform, e.g. "pfbStagingTilegardenExecutor"
+
+Other optional variables can be uncommented and edited to reflect your configuration. If you
+need Tilegarden to access a database, for example, you'll likely want to set `LAMBDA_SUBNETS` and `LAMBDA_SECURITY_GROUPS` to point to the relevant resources in your VPC.
 
 If you have any additional environment variables (like database connection
 strings) that you need access to in your function, add them to `./src/tilegarden/.env`
@@ -136,7 +154,13 @@ vagrant@pfb-network-connectivity:/vagrant$ docker-compose \
                                              tilegarden deploy-new
 ```
 
-### 4. Update remote state for Claudia and Terraform
+### 4. Manually add a scheduled warming event
+
+In the [CloudWatch Rules console](https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#rules:),
+add a scheduled event to generate warming invocations to prevent users from being subjected to cold starts.
+See [issue #714](https://github.com/azavea/pfb-network-connectivity/issues/714).
+
+### 5. Update remote state for Claudia and Terraform
 
 Once the deployment has completed, upload your `.env` file and Claudia metadata
 file to the remote state bucket so that CI can update Tilegarden automatically:

@@ -320,7 +320,8 @@ class USStateView(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request, format=None, *args, **kwargs):
-        return Response([{'abbr': state.abbr, 'name': state.name} for state in us.STATES])
+        return Response([{'abbr': state.abbr, 'name': state.name} for state in
+                         us.STATES_AND_TERRITORIES])
 
 
 class CountriesView(APIView):
@@ -330,6 +331,9 @@ class CountriesView(APIView):
     filter_class = None
     permission_classes = (AllowAny,)
 
+    # Make a list of countries with US territories excluded, since we'll treat them as states
+    COUNTRIES_MINUS_TERRITORIES = [{'abbr': abbr, 'name': name} for (abbr, name) in list(countries)
+                                   if abbr not in [t.abbr for t in us.TERRITORIES]]
+
     def get(self, request, format=None, *args, **kwargs):
-        return Response([{'abbr': abbr, 'name': countries.countries[abbr]}
-                        for abbr in countries.countries])
+        return Response(self.COUNTRIES_MINUS_TERRITORIES)

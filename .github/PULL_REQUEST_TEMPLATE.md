@@ -22,4 +22,8 @@ Optional. Ancillary topics, caveats, alternative strategies that didn't work out
  * Include test case, and expected output
 
 
-Connects #XXX
+## Checklist
+
+- [ ] Add entry to CHANGELOG.md
+
+Resolves #XXX

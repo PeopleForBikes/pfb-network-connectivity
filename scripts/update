@@ -69,7 +69,7 @@ then
     else
         pushd ..
 
-        docker-compose build database django angularjs analysis tilemaker tilegarden django-q
+        docker-compose build database django angularjs analysis tilegarden django-q
 
         run_database_migrations
         run_data_fixtures

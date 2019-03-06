@@ -83,23 +83,6 @@ services:
       - ./data:/data
       - ./src/django:/opt/pfb/django
 
-  tilemaker:
-    image: pfb-tilemaker
-    extends:
-      service: django
-      file: common.yml
-    build:
-      context: ./src
-      dockerfile: tilemaker/Dockerfile
-    links:
-      - database:database.service.pfb.internal
-    environment:
-      - AWS_STORAGE_BUCKET_NAME
-      - AWS_PROFILE
-      - PFB_JOB_ID
-      - PFB_S3_RESULTS_PATH
-      - PFB_S3_TILES_PATH
-
   tilegarden:
     image: pfb-tilegarden
     build:

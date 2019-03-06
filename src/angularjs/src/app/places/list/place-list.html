@@ -48,7 +48,7 @@
                             <li ng-repeat="neighborhood in placeList.comparePlaces | filter:{uuid: '!!'}">
                                 <div>
                                     <div class="compare-title">{{neighborhood.label}},
-                                        {{neighborhood.state_abbrev}}</div>
+                                        {{neighborhood.state_abbrev || neighborhood.country.name}}</div>
                                     <div class="network-score small">{{neighborhood.overall_score | number:0}}</div>
                                     <a ng-click="placeList.removeComparePlace(neighborhood.uuid)"
                                         class="compare-remove">Remove</a>
@@ -84,7 +84,7 @@
                         <pfb-thumbnail-map pfb-thumbnail-map-place="neighborhood.uuid">
                         </pfb-thumbnail-map>
                     </div>
-                    <div class="result-title">{{neighborhood.label}}, {{neighborhood.state_abbrev}}
+                    <div class="result-title">{{neighborhood.label}}, {{neighborhood.state_abbrev || neighborhood.country.name}}
                         <div class="location-timestamp"><span>Last updated:</span> {{neighborhood.modifiedAt | date:'MMMM dd, yyyy'}}</div>
                     </div>
                 </div>

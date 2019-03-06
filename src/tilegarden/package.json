@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "claudia-api-builder": "^4.1.0",
+    "lambda-warmer": "^1.1.0",
     "mapnik": "^3.7.2",
     "sql-escape-string": "^1.1.0",
     "winston": "^3.2.1",

@@ -48,7 +48,7 @@ PFB_EXIT_STATUS=$?
 set -e
 
 if [ $PFB_EXIT_STATUS -eq  0 ]; then
-    update_status "EXPORTED" "Finished analysis"
+    update_status "COMPLETE" "Finished analysis"
 else
     update_status "ERROR" "Failed" "See job logs for more details."
 fi

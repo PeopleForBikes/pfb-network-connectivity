@@ -14,8 +14,6 @@ node {
     // Use dummy values for now, these resources don't actually exist
     env.PFB_AWS_BATCH_ANALYSIS_JOB_QUEUE_NAME = 'dummy-test-pfb-analysis-job-queue'
     env.PFB_AWS_BATCH_ANALYSIS_JOB_DEFINITION_NAME_REVISION = 'dummy-test-pfb-analysis-run-job:1'
-    env.PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME = 'dummy-test-pfb-tilemaker-job-queue'
-    env.PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME_REVISION = 'dummy-test-pfb-tilemaker-run-job:1'
 
     // Execute `setup` wrapped within a plugin that translates
     // ANSI color codes to something that renders inside the Jenkins

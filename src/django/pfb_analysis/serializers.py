@@ -65,7 +65,7 @@ class PrimaryKeyReferenceRelatedField(serializers.PrimaryKeyRelatedField):
 class NeighborhoodSerializer(PFBModelSerializer):
 
     # Set default for country field, as serializers do not recognize model defaults
-    country = CountryField(initial='US')
+    country = CountryField(initial='US', country_dict=True)
     # Use minimum length serializer in-built validator (model only defines max)
     city_fips = serializers.CharField(max_length=CITY_FIPS_LENGTH, min_length=CITY_FIPS_LENGTH,
                                       default='', allow_blank=True, trim_whitespace=True)
@@ -109,6 +109,7 @@ class NeighborhoodSummarySerializer(PFBModelSerializer):
     All the fields are read-only. Any changes to neighborhoods should happen through the
     neighborhoods endpoint, which uses the regular serializer.
     """
+    country = CountryField(country_dict=True)
 
     class Meta:
         model = Neighborhood
@@ -185,8 +186,7 @@ class AnalysisJobSerializer(PFBModelSerializer):
     class Meta:
         model = AnalysisJob
         exclude = ('created_at', 'modified_at', 'created_by', 'modified_by', 'overall_scores',
-                   'analysis_job_definition', 'tilemaker_job_definition',
-                   '_analysis_job_name', '_tilemaker_job_name',)
+                   'analysis_job_definition', '_analysis_job_name',)
         read_only_fields = ('uuid', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy',
                             'batch_job_id', 'batch', 'census_block_count', 'final_runtime',
                             'local_upload_task')

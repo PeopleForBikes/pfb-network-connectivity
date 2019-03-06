@@ -11,6 +11,5 @@ services:
       - GIT_COMMIT
       - PFB_SETTINGS_BUCKET
       - BATCH_ANALYSIS_JOB_NAME_REVISION
-      - BATCH_TILEMAKER_JOB_NAME_REVISION
     working_dir: /usr/local/src
     entrypoint: terraform

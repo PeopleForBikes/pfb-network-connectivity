@@ -156,9 +156,12 @@ psql -h $NB_POSTGRESQL_HOST -U $NB_POSTGRESQL_USER -d $NB_POSTGRESQL_DB \
             speed smallint
         );"
 
+SPEED_TEMPDIR="${NB_TEMPDIR:-$(mktemp -d)}/speed"
+mkdir -p "${SPEED_TEMPDIR}"
+
 # Import state residential speeds file
 STATE_SPEED_FILENAME="state_fips_speed"
-STATE_SPEED_DOWNLOAD="/data/${STATE_SPEED_FILENAME}.csv"
+STATE_SPEED_DOWNLOAD="${SPEED_TEMPDIR}/${STATE_SPEED_FILENAME}.csv"
 wget -nv -O "${STATE_SPEED_DOWNLOAD}" "https://s3.amazonaws.com/pfb-public-documents/${STATE_SPEED_FILENAME}.csv"
 psql -h $NB_POSTGRESQL_HOST -U $NB_POSTGRESQL_USER -d $NB_POSTGRESQL_DB \
      -c "\copy state_speed FROM ${STATE_SPEED_DOWNLOAD} delimiter ',' csv header"
@@ -180,9 +183,10 @@ psql -h $NB_POSTGRESQL_HOST -U $NB_POSTGRESQL_USER -d $NB_POSTGRESQL_DB \
 
 # Import city residential speeds file
 CITY_SPEED_FILENAME="city_fips_speed"
-CITY_SPEED_DOWNLOAD="/data/${CITY_SPEED_FILENAME}.csv"
+CITY_SPEED_DOWNLOAD="${SPEED_TEMPDIR}/${CITY_SPEED_FILENAME}.csv"
 if [ -f "/data/${CITY_SPEED_FILENAME}.csv" ]; then
 	echo "Using local city speed file"
+  CITY_SPEED_DOWNLOAD="/data/${CITY_SPEED_FILENAME}.csv"
 else
 	wget -nv -O "${CITY_SPEED_DOWNLOAD}" "https://s3.amazonaws.com/pfb-public-documents/${CITY_SPEED_FILENAME}.csv"
 fi
@@ -202,6 +206,8 @@ then
 else
     echo "The city residential default speed is ${CITY_DEFAULT}."
 fi
+
+rm -rf "${SPEED_TEMPDIR}"
 echo "DONE: Importing city default residential speed"
 
 # move the full osm tables to the received schema

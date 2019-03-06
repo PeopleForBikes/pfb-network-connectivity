@@ -445,10 +445,6 @@ def generate_analysis_job_def():
     return settings.PFB_AWS_BATCH_ANALYSIS_JOB_DEFINITION_NAME_REVISION
 
 
-def generate_tilemaker_job_def():
-    return settings.PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME_REVISION
-
-
 class AnalysisJob(PFBModel):
 
     def __str__(self):
@@ -463,14 +459,12 @@ class AnalysisJob(PFBModel):
         CONNECTIVITY = 'CONNECTIVITY'
         METRICS = 'METRICS'
         EXPORTING = 'EXPORTING'
-        EXPORTED = 'EXPORTED'
-        TILING = 'TILING'
         COMPLETE = 'COMPLETE'
         CANCELLED = 'CANCELLED'
         ERROR = 'ERROR'
 
         ACTIVE_STATUSES = (CREATED, QUEUED, IMPORTING, BUILDING, CONNECTIVITY,
-                           METRICS, EXPORTING, EXPORTED, TILING,)
+                           METRICS, EXPORTING,)
         SUCCESS_STATUS = COMPLETE
         DONE_STATUSES = (SUCCESS_STATUS, CANCELLED, ERROR,)
 
@@ -482,8 +476,6 @@ class AnalysisJob(PFBModel):
             (CONNECTIVITY, 'Calculating Connectivity',),
             (METRICS, 'Calculating Graph Metrics',),
             (EXPORTING, 'Exporting Results',),
-            (EXPORTED, 'Analysis Finished',),
-            (TILING, 'Generating Map Tiles',),
             (COMPLETE, 'Complete',),
             (CANCELLED, 'Cancelled',),
             (ERROR, 'Error',),
@@ -504,8 +496,6 @@ class AnalysisJob(PFBModel):
 
     analysis_job_definition = models.CharField(max_length=50, default=generate_analysis_job_def)
     _analysis_job_name = models.CharField(max_length=50, default='')
-    tilemaker_job_definition = models.CharField(max_length=50, default=generate_tilemaker_job_def)
-    _tilemaker_job_name = models.CharField(max_length=50, default='')
     start_time = models.DateTimeField(null=True, blank=True)
     final_runtime = models.PositiveIntegerField(default=0)
     status = models.CharField(choices=Status.CHOICES, max_length=12, default=Status.CREATED)
@@ -547,18 +537,6 @@ class AnalysisJob(PFBModel):
         return self._analysis_job_name
 
     @property
-    def tilemaker_job_name(self):
-        if not self._tilemaker_job_name:
-            job_definition = self.tilemaker_job_definition
-            # Due to CloudWatch logs limits, job name must be no more than 50 chars
-            # so force truncate to that to keep jobs from failing
-            definition_name, revision = job_definition.split(':')
-            job_name = '{}--{}--{}'.format(definition_name[:30], revision, str(self.uuid)[:8])
-            self._tilemaker_job_name = job_name
-            self.save()
-        return self._tilemaker_job_name
-
-    @property
     def census_blocks_url(self):
         return self._s3_url_for_result_resource('neighborhood_census_blocks.zip')
 
@@ -576,17 +554,12 @@ class AnalysisJob(PFBModel):
 
     def tile_url_for_layer(self, layer):
         tile_template = '{z}/{x}/{y}.png'
-        if settings.USE_TILEGARDEN:
-            return '{root}/tile/{job_id}/{layer}/{tile_template}'.format(
-                root=settings.TILEGARDEN_ROOT,
-                job_id=self.uuid,
-                layer=layer,
-                tile_template=tile_template
-            )
-        else:
-            return self._s3_url_for_result_resource(
-                'tiles/neighborhood_{layer}/{tile_template}'.format(layer=layer,
-                                                                    tile_template=tile_template))
+        return '{root}/tile/{job_id}/{layer}/{tile_template}'.format(
+            root=settings.TILEGARDEN_ROOT,
+            job_id=self.uuid,
+            layer=layer,
+            tile_template=tile_template
+        )
 
     @property
     def tile_urls(self):
@@ -705,8 +678,6 @@ class AnalysisJob(PFBModel):
                         "\nPFB_JOB_ID='{PFB_JOB_ID}' PFB_CITY_FIPS='{PFB_CITY_FIPS}' PFB_S3_RESULTS_PATH='{PFB_S3_RESULTS_PATH}' "
                         "./scripts/run-local-analysis "
                         "'{PFB_SHPFILE_URL}' {PFB_STATE} {PFB_STATE_FIPS}".format(**environment))
-            if not settings.USE_TILEGARDEN:
-                self.generate_tiles()
             return
 
         client = boto3.client('batch')
@@ -724,58 +695,10 @@ class AnalysisJob(PFBModel):
             self.update_status(self.Status.QUEUED)
         except (botocore.exceptions.BotoCoreError, KeyError):
             logger.exception('Error starting AnalysisJob {}'.format(self.uuid))
-        else:
-            # Schedule the tilemaker job, but only if Tilegarden isn't enabled.
-            if not settings.USE_TILEGARDEN:
-                self.generate_tiles()
-
-    def generate_tiles(self):
-        environment = self.base_environment()
-        environment.update({
-            'PFB_JOB_ID': str(self.uuid),
-            'AWS_STORAGE_BUCKET_NAME': settings.AWS_STORAGE_BUCKET_NAME,
-            'PFB_S3_RESULTS_PATH': self.s3_results_path,
-            'PFB_S3_TILES_PATH': self.s3_tiles_path
-        })
-
-        # Workaround for not being able to run development jobs on the actual batch cluster:
-        # bail out with a helpful message
-        if settings.DJANGO_ENV == 'development':
-            logger.warn("Can't actually run development tiling jobs on AWS. Try this:"
-                        "\nAWS_STORAGE_BUCKET_NAME='{AWS_STORAGE_BUCKET_NAME}' "
-                        "PFB_JOB_ID='{PFB_JOB_ID}' "
-                        "PFB_S3_RESULTS_PATH='{PFB_S3_RESULTS_PATH}' "
-                        "PFB_S3_TILES_PATH='{PFB_S3_TILES_PATH}' "
-                        "docker-compose run tilemaker".format(**environment))
-            return
-
-        job_params = {
-            'jobName': self.tilemaker_job_name,
-            'jobDefinition': self.tilemaker_job_definition,
-            'jobQueue': settings.PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME,
-            'dependsOn': [{'jobId': self.batch_job_id}],
-            'containerOverrides': {
-                'environment': create_environment(**environment),
-            }
-        }
-        client = boto3.client('batch')
-        try:
-            response = client.submit_job(**job_params)
-            logger.info('Exporting tiles for AnalysisJob {}, job {}'.format(self.uuid,
-                                                                            response['jobId']))
-        except Exception:
-            logger.exception('Error starting tile export for AnalysisJob {}'.format(self.uuid))
-            raise
 
     def update_status(self, status, step='', message=''):
         if self.status == self.Status.CANCELLED:
             return
-
-        # Special case to distinguish whether there's a tilemaker step or not.
-        # The analysis doesn't know, so it sends EXPORTED and if Tilegarden is enabled we rewrite
-        # it here to COMPLETE, since the geometry used by Tilegarden is exported by the analysis.
-        if status == self.Status.EXPORTED and settings.USE_TILEGARDEN:
-            status = self.Status.COMPLETE
 
         update = self.status_updates.create(job=self, status=status, step=step, message=message)
         self.status = status

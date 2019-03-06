@@ -24,14 +24,3 @@
     regexp: ^PFB_AWS_BATCH_ANALYSIS_JOB_DEFINITION_NAME
     line: "PFB_AWS_BATCH_ANALYSIS_JOB_DEFINITION_NAME={{ pfb_aws_batch_analysis_job_definition_name }}"
 
-- name: Set PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME environment variable
-  lineinfile:
-    dest: /etc/environment
-    regexp: ^PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME
-    line: "PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME={{ pfb_aws_batch_tilemaker_job_queue_name }}"
-
-- name: Set PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME environment variable
-  lineinfile:
-    dest: /etc/environment
-    regexp: ^PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME
-    line: "PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME={{ pfb_aws_batch_tilemaker_job_definition_name }}"

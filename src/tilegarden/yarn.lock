@@ -2827,6 +2827,10 @@ kuler@1.0.x:
   dependencies:
     colornames "^1.1.1"
 
+lambda-warmer@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/lambda-warmer/-/lambda-warmer-1.1.0.tgz#95bdc4aeb8def0091da36e49b80bab56b6b64653"
+
 latest-version@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/latest-version/-/latest-version-3.1.0.tgz#a205383fea322b33b5ae3b18abee0dc2f356ee15"

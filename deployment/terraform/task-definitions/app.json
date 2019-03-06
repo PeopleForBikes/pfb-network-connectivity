@@ -88,24 +88,12 @@
         "value": "${batch_analysis_job_definition_name_revision}"
       },
       {
-        "name": "PFB_AWS_BATCH_TILEMAKER_JOB_QUEUE_NAME",
-        "value": "${batch_tilemaker_job_queue_name}"
-      },
-      {
-        "name": "PFB_AWS_BATCH_TILEMAKER_JOB_DEFINITION_NAME_REVISION",
-        "value": "${batch_tilemaker_job_definition_name_revision}"
-      },
-      {
         "name": "PFB_TILEGARDEN_ROOT",
         "value": "${tilegarden_root}"
       },
       {
         "name": "PFB_TILEGARDEN_CACHE_BUCKET",
         "value": "${tilegarden_cache_bucket}"
-      },
-      {
-        "name": "PFB_USE_TILEGARDEN",
-        "value": "${use_tilegarden}"
       }
     ],
     "logConfiguration": {

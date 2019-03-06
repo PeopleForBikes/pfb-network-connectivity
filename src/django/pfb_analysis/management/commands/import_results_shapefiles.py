@@ -10,8 +10,9 @@ import zipfile
 import boto3
 
 from django.conf import settings
-from django.contrib.gis.utils import LayerMapping, LayerMapError
+from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from pfb_analysis.models import (
     AnalysisJob,
@@ -26,7 +27,6 @@ logger = logging.getLogger(__name__)
 CENSUS_BLOCK_LAYER_MAPPING = {
     'geom': 'POLYGON',
     'overall_score': 'OVERALL_SC',
-    'job': {'uuid': 'JOB_ID'},
 }
 
 NEIGHBORHOOD_WAYS_LAYER_MAPPING = {
@@ -37,7 +37,6 @@ NEIGHBORHOOD_WAYS_LAYER_MAPPING = {
     'ft_bike_in': 'FT_BIKE_IN',
     'tf_bike_in': 'TF_BIKE_IN',
     'functional': 'FUNCTIONAL',
-    'job': {'uuid': 'JOB_ID'},
 }
 
 
@@ -62,7 +61,9 @@ def s3_job_url(job, filename):
 
 def add_results_geoms(job):
 
+    @transaction.atomic
     def import_shapefile(job, shpfile_name, model, layer_mapping):
+        # Clear existing geometries, in case this is a re-import
         model.objects.filter(job=job).delete()
         import_tmpdir = ''
         try:
@@ -74,23 +75,13 @@ def add_results_geoms(job):
                                             import_file,
                                             layer_mapping)
             import_layer_map.save()
-        except LayerMapError as e:
-            # If we failed with an error related to JOB_ID not found, it's because this is an
-            # old job that doesn't contain the column in the shapefile. So we try again with
-            # job removed from the layer mapping and manually add job_id after import completes.
-            if 'JOB_ID' in str(e):
-                new_mapping = deepcopy(layer_mapping)
-                new_mapping.pop('job')
-                import_layer_map = LayerMapping(model,
-                                                import_file,
-                                                new_mapping)
-                import_layer_map.save()
-                model.objects.filter(job=None).update(job=job)
-            else:
-                raise
-        except:
+            # Set job ID on the objects we just imported. Since we're in a transaction, there
+            # should be no potential for conflict between simultaneous imports.
+            model.objects.filter(job=None).update(job=job)
+        except Exception:
             logger.exception('Error importing {} shapefile for job: {}'.format(str(model),
                                                                                str(job.uuid)))
+            raise
         finally:
             if import_tmpdir:
                 shutil.rmtree(import_tmpdir, ignore_errors=True)

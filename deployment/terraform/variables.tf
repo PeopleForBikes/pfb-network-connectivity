@@ -142,8 +142,6 @@ variable "django_secret_key" {}
 variable "django_allowed_hosts" {}
 variable "batch_analysis_job_queue_name" {}
 variable "batch_analysis_job_definition_name_revision" {} # format: 'name:revision'
-variable "batch_tilemaker_job_queue_name" {}
-variable "batch_tilemaker_job_definition_name_revision" {} # format: 'name:revision'
 
 variable "papertrail_host" {}
 variable "papertrail_port" {}
@@ -163,7 +161,4 @@ variable "tilegarden_api_gateway_domain_name" {}
 
 variable "cloudfront_price_class" {
   default = "PriceClass_100"
-}
-variable "use_tilegarden" {
-  default = true
 }

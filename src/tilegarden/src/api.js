@@ -4,6 +4,7 @@
 
 const APIBuilder = require('claudia-api-builder')
 const aws = require('aws-sdk')
+const warmer = require('lambda-warmer')
 
 const { imageTile, createMap } = require('./tiler')
 const HTTPError = require('./util/error-builder')
@@ -52,8 +53,7 @@ const api = new APIBuilder({ requestFormat: 'AWS_PROXY' })
 
 // Handles error by returning an API response object
 const handleError = (e) => {
-    /* eslint-disable-next-line no-console */
-    console.error(e)
+    logger.error(e)
     return new APIBuilder.ApiResponse(
         { message: e.message || e.toString() },
         { 'Content-Type': 'application/json' },
@@ -154,6 +154,29 @@ api.get(
         404,
     ),
 )
+
+/* The api's entrypoint, defined by Claudia API Builder, is 'api.proxyRouter'. To handle
+ * 'lambda-warmer' invocations, which API Builder doesn't know anything about, we need to process
+ * raw invocations before they get to the API.  So this replaces 'api.proxyRouter' with a wrapped
+ * function that handles warming invocations and passes other invocations along.
+ * See https://github.com/jeremydaly/lambda-warmer#instrumenting-your-lambda-functions
+ */
+const origProxyRouter = api.proxyRouter
+api.proxyRouter = (event, context, callback) => {
+    // Start a promise chain
+    logger.debug('in handler')
+    warmer(event).then((isWarmer) => {
+        logger.debug('in warmer.then')
+        // if a warming event
+        if (isWarmer) {
+            logger.debug('This is a warming call.')
+            callback(null, 'warmed')
+        // else proceed with handler logic
+        } else {
+            origProxyRouter(event, context, callback)
+        }
+    }).catch(err => logger.error('Error: ', err))
+}
 
 // not es6-ic, but necessary for claudia to find the index
 module.exports = api

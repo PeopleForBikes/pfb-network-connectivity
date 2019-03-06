@@ -31,6 +31,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='analysisjob',
             name='tilemaker_job_definition',
-            field=models.CharField(default=pfb_analysis.models.generate_tilemaker_job_def, max_length=50),
+            # Formerly had 'default=pfb_analysis.models.generate_tilemaker_job_def', but that crashes
+            field=models.CharField(default='', max_length=50),
         ),
     ]

@@ -192,3 +192,101 @@ resource "aws_iam_instance_profile" "batch_container_instance" {
   name = "${aws_iam_role.batch_container_instance_ec2.name}"
   role = "${aws_iam_role.batch_container_instance_ec2.name}"
 }
+
+#
+# Tilegarden executor
+#
+data "aws_iam_policy_document" "lambda_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+data "aws_iam_policy_document" "lambda_invoke" {
+  statement {
+    effect = "Allow"
+    resources = ["*"]
+    actions = [
+      "lambda:InvokeFunction",
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "logs_create_and_write" {
+  statement {
+    effect = "Allow"
+    resources = ["arn:aws:logs:*:*:*"],
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "vpc_access" {
+  statement {
+    effect = "Allow"
+    resources = ["*"],
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DeleteNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "s3_write_tile_cache" {
+  statement {
+    effect = "Allow"
+    resources = [
+      "arn:aws:s3:::${lower(var.environment)}-pfb-tile-cache-${var.aws_region}",
+      "arn:aws:s3:::${lower(var.environment)}-pfb-tile-cache-${var.aws_region}/*",
+    ]
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:GetLifecycleConfiguration",
+      "s3:PutLifecycleConfiguration",
+      "s3:GetBucketWebsite",
+    ]
+  }
+}
+
+resource "aws_iam_role" "tilegarden_executor" {
+  name               = "pfb${var.environment}TilegardenExecutor"
+  assume_role_policy = "${data.aws_iam_policy_document.lambda_assume_role.json}"
+}
+
+resource "aws_iam_role_policy" "executor_role_lambda_invoke_policy" {
+  name   = "${var.environment}InvokeLambda"
+  role   = "${aws_iam_role.tilegarden_executor.id}"
+  policy = "${data.aws_iam_policy_document.lambda_invoke.json}"
+}
+
+resource "aws_iam_role_policy" "executor_role_logs_create_and_write_policy" {
+  name   = "${var.environment}WriteLogs"
+  role   = "${aws_iam_role.tilegarden_executor.id}"
+  policy = "${data.aws_iam_policy_document.logs_create_and_write.json}"
+}
+
+resource "aws_iam_role_policy" "executor_role_vpc_access_policy" {
+  name   = "${var.environment}AccessVPC"
+  role   = "${aws_iam_role.tilegarden_executor.id}"
+  policy = "${data.aws_iam_policy_document.vpc_access.json}"
+}
+
+resource "aws_iam_role_policy" "executor_role_s3_write_tile_cache_policy" {
+  name   = "${var.environment}WriteTileCache"
+  role   = "${aws_iam_role.tilegarden_executor.id}"
+  policy = "${data.aws_iam_policy_document.s3_write_tile_cache.json}"
+}

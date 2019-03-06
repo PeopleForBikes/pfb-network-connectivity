@@ -2,8 +2,7 @@
 <!-- Top most header with hero image -->
 <header class="main-header">
     <div class="container text-center">
-        <img src="assets/images/people-for-bikes-icon.svg" alt="Places for bikes" class="pfb-logo">
-        <div class="pfb-logo-text">PlacesForBikes Bike Network Analysis (BNA) Score</div>
+        <img src="assets/images/bna-logo.png" alt="Bicycle Network Analysis" class="pfb-logo">
         <h1>Find out how well the bike network in your community connects people with the places they want to go</h1>
     </div>
 </header>
@@ -31,7 +30,7 @@
                     </div>
                     <div class="card-details">
                         <h3>{{city.label}}</h3>
-                        <h4>{{city.state_abbrev}}</h4>
+                        <h4>{{city.state_abbrev || city.country.name}}</h4>
                         <div class="network-score large">{{city.overall_score | number:0}}</div>
                         <div class="location-timestamp"><span>Last updated:</span>
                             {{city.modifiedAt | date:'MMMM dd, yyyy'}}</div>

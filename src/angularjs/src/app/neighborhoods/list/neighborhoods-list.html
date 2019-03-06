@@ -27,7 +27,7 @@
             <td>{{neighborhood.label}}</td>
             <td>{{neighborhood.state_abbrev}}</td>
             <td>{{neighborhood.city_fips}}</td>
-            <td>{{neighborhood.country}}</td>
+            <td>{{neighborhood.country.code}}</td>
             <td>{{neighborhood.visibility}}</td>
             <td>{{neighborhood.createdAt | date:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td ng-if="neighborhoodList.isAdminUser">

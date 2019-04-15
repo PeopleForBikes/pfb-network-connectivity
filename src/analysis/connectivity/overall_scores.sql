@@ -38,6 +38,12 @@ SELECT  'people',
 FROM    neighborhood_score_inputs
 WHERE   use_pop;
 
+-- employment
+INSERT INTO generated.neighborhood_overall_scores (
+    score_id, score_original, human_explanation
+)
+VALUES ('opportunity_employment', 0, 'No employment score -- data unavailable.');
+
 -- k12 education
 INSERT INTO generated.neighborhood_overall_scores (
     score_id, score_original, human_explanation

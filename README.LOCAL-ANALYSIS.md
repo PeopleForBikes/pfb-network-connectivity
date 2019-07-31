@@ -75,6 +75,7 @@ here's a table of the environment variables that can be set to affect the analyi
 | PFB_JOB_ID | The job ID of an AnalysisJob triggered from Django. This should be left unset if you're running local jobs not managed by the Django dev stack. | '' |
 | AWS_PROFILE | The name of the AWS profile, configured in `~/.aws`, to use for uploading to S3. This can also be left unset, and the analysis run will ignore attempts to interface with AWS if no valid profile + credentials are found. | pfb |
 | AWS_STORAGE_BUCKET_NAME | The S3 bucket to upload results to. Ignored unless `PFB_JOB_ID` and `AWS_PROFILE` are set. | {DEV_USER}-pfb-storage-us-east-1 |
+| PFB_CITY_FIPS | Optional seven-digit city FIPS code identifier to set the default residential street speed limit (two-digit State FIPS plus five-digit Place FIPS). | state default residential speed limit |
 
 ## Targeting a remote database
 

@@ -17,13 +17,14 @@ CREATE TABLE generated.neighborhood_retail (
     geom_poly geometry(multipolygon, :nb_output_srid)
 );
 
--- insert
+-- insert polygons
 INSERT INTO generated.neighborhood_retail (
     geom_poly
 )
 SELECT  ST_Multi(ST_Buffer(ST_CollectionExtract(unnest(ST_ClusterWithin(way,:cluster_tolerance)),3),0))
 FROM    neighborhood_osm_full_polygon
-WHERE   landuse = 'retail';
+WHERE   landuse = 'retail'
+		OR building = 'retail';
 
 -- set points on polygons
 UPDATE  generated.neighborhood_retail

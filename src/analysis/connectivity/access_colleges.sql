@@ -67,19 +67,25 @@ SET     colleges_score =    CASE
 -- set population shed for each college in the neighborhood
 UPDATE  neighborhood_colleges
 SET     pop_high_stress = (
-            SELECT  SUM(cb.pop10)
-            FROM    neighborhood_census_blocks cb,
-                    neighborhood_connected_census_blocks cbs
-            WHERE   cbs.source_blockid10 = cb.blockid10
-            AND     cbs.target_blockid10 = ANY(neighborhood_colleges.blockid10)
+            SELECT  SUM(shed.pop)
+            FROM    ( 
+                    SELECT  cb.blockid10, MAX(cb.pop10) as pop 
+                    FROM    neighborhood_census_blocks cb,
+                            neighborhood_connected_census_blocks cbs
+                    WHERE   cbs.source_blockid10 = cb.blockid10
+                    AND     cbs.target_blockid10 = ANY(neighborhood_colleges.blockid10)
+                    GROUP BY cb.blockid10) as shed
         ),
         pop_low_stress = (
-            SELECT  SUM(cb.pop10)
-            FROM    neighborhood_census_blocks cb,
-                    neighborhood_connected_census_blocks cbs
-            WHERE   cbs.source_blockid10 = cb.blockid10
-            AND     cbs.target_blockid10 = ANY(neighborhood_colleges.blockid10)
-            AND     cbs.low_stress
+            SELECT  SUM(shed.pop)
+            FROM    (
+                    SELECT  cb.blockid10, MAX(cb.pop10) as pop
+                    FROM    neighborhood_census_blocks cb,
+                            neighborhood_connected_census_blocks cbs
+                    WHERE   cbs.source_blockid10 = cb.blockid10
+                    AND     cbs.target_blockid10 = ANY(neighborhood_colleges.blockid10)
+                    AND     cbs.low_stress
+                    GROUP BY cb.blockid10) as shed
         )
 WHERE   EXISTS (
             SELECT  1

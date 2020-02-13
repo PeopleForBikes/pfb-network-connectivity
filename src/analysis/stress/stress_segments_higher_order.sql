@@ -174,7 +174,7 @@ SET     ft_seg_stress =
                         WHEN COALESCE(tf_bike_infra_width,:default_facility_width) + :default_parking_width >= 12.9   -- treat as bike lane with no parking
                             THEN    CASE
                                     WHEN COALESCE(speed_limit,:default_speed) > 50 THEN 3
-                                    WHEN COALESCE(speed_limit,:default_speed) IN(45, 50)
+                                    WHEN COALESCE(speed_limit,:default_speed) IN (45, 50)
                                         THEN    CASE
                                                 WHEN COALESCE(tf_lanes,:default_lanes) > 1 THEN 3
                                                 ELSE 1

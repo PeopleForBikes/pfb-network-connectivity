@@ -12,7 +12,6 @@ CREATE TABLE generated.neighborhood_score_inputs (
     notes TEXT,
     human_explanation TEXT,
     use_pop BOOLEAN,
-    use_emp BOOLEAN,
     use_k12 BOOLEAN,
     use_tech BOOLEAN,
     use_univ BOOLEAN,
@@ -177,115 +176,6 @@ SELECT  'People',
             weighted by population.','\n\s+',' ','g'),
         regexp_replace('On average, census blocks in the neighborhood received
             this population score.','\n\s+',' ','g'),
-        True
-FROM    neighborhood_census_blocks,
-        tmp_pop
-WHERE   EXISTS (
-            SELECT  1
-            FROM    neighborhood_boundary AS b
-            WHERE   ST_Intersects(neighborhood_census_blocks.geom,b.geom)
-        );
-
-
--------------------------------------
--- employment
--------------------------------------
--- median jobs access score
-INSERT INTO generated.neighborhood_score_inputs (
-    category, score_name, score, notes, human_explanation
-)
-SELECT  'Opportunity',
-        'Median score of access to employment',
-        quantile(CASE WHEN emp_high_stress=0 THEN 0 ELSE emp_low_stress::FLOAT/emp_high_stress END,0.5),
-        regexp_replace('Score of employment accessible by low stress
-            to employment accessible overall, expressed as
-            the median of all census blocks in the
-            neighborhood','\n\s+',' ','g'),
-        regexp_replace('Half of all census blocks in the neighborhood have
-            a ratio of low stress to high stress access above this number,
-            half have a lower ratio.','\n\s+',' ','g')
-FROM    neighborhood_census_blocks
-WHERE   EXISTS (
-            SELECT  1
-            FROM    neighborhood_boundary AS b
-            WHERE   ST_Intersects(neighborhood_census_blocks.geom,b.geom)
-        );
-
--- 70th percentile jobs access score
-INSERT INTO generated.neighborhood_score_inputs (
-    category, score_name, score, notes, human_explanation
-)
-SELECT  'Opportunity',
-        '70th percentile score of access to employment',
-        quantile(CASE WHEN emp_high_stress=0 THEN 0 ELSE emp_low_stress::FLOAT/emp_high_stress END,0.7),
-        regexp_replace('Score of employment accessible by low stress
-            to employment accessible overall, expressed as
-            the 70th percentile of all census blocks in the
-            neighborhood','\n\s+',' ','g'),
-        regexp_replace('30% of all census blocks in the neighborhood have
-            a ratio of low stress to high stress access above this number,
-            70% have a lower ratio.','\n\s+',' ','g')
-FROM    neighborhood_census_blocks
-WHERE   EXISTS (
-            SELECT  1
-            FROM    neighborhood_boundary AS b
-            WHERE   ST_Intersects(neighborhood_census_blocks.geom,b.geom)
-        );
-
--- 30th percentile jobs access score
-INSERT INTO generated.neighborhood_score_inputs (
-    category, score_name, score, notes, human_explanation
-)
-SELECT  'Opportunity',
-        '30th percentile score of access to employment',
-        quantile(CASE WHEN emp_high_stress=0 THEN 0 ELSE emp_low_stress::FLOAT/emp_high_stress END,0.3),
-        regexp_replace('Score of employment accessible by low stress
-            to employment accessible overall, expressed as
-            the 30th percentile of all census blocks in the
-            neighborhood','\n\s+',' ','g'),
-        regexp_replace('70% of all census blocks in the neighborhood have
-            a ratio of low stress to high stress access above this number,
-            30% have a lower ratio.','\n\s+',' ','g')
-FROM    neighborhood_census_blocks
-WHERE   EXISTS (
-            SELECT  1
-            FROM    neighborhood_boundary AS b
-            WHERE   ST_Intersects(neighborhood_census_blocks.geom,b.geom)
-        );
-
--- avg jobs access score
-INSERT INTO generated.neighborhood_score_inputs (
-    category, score_name, score, notes, human_explanation
-)
-SELECT  'Opportunity',
-        'Average score of access to employment',
-        CASE    WHEN SUM(emp_high_stress) = 0 THEN 0
-                ELSE SUM(emp_low_stress)::FLOAT / SUM(emp_high_stress)
-                END,
-        regexp_replace('Score of employment accessible by low stress
-            to employment accessible overall, expressed as
-            the average of all census blocks in the
-            neighborhood','\n\s+',' ','g'),
-        regexp_replace('On average, census blocks in the neighborhood have
-            this ratio of low stress to high stress access.','\n\s+',' ','g')
-FROM    neighborhood_census_blocks
-WHERE   EXISTS (
-            SELECT  1
-            FROM    neighborhood_boundary AS b
-            WHERE   ST_Intersects(neighborhood_census_blocks.geom,b.geom)
-        );
-
--- population weighted census block score
-INSERT INTO generated.neighborhood_score_inputs (
-    category, score_name, score, notes, human_explanation, use_emp
-)
-SELECT  'Opportunity',
-        'Average score of access to jobs',
-        SUM(CASE WHEN tmp_pop.overall = 0 THEN 0 ELSE pop10 * emp_score / tmp_pop.overall END),
-        regexp_replace('Average employment score for census blocks
-            weighted by population.','\n\s+',' ','g'),
-        regexp_replace('On average, census blocks in the neighborhood received
-            this employment score.','\n\s+',' ','g'),
         True
 FROM    neighborhood_census_blocks,
         tmp_pop

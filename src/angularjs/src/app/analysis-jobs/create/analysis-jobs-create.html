@@ -10,8 +10,8 @@
             <div class="form-group">
               <label for="role">Neighborhood</label>
               <select ng-model="analysisJobCreate.neighborhood"
-                      ng-options="neighborhood as neighborhood.label for neighborhood
-                      in analysisJobCreate.neighborhoods track by neighborhood.uuid"
+                      ng-options="neighborhood as neighborhood.label + ', ' + neighborhood.label_suffix
+                      for neighborhood in analysisJobCreate.neighborhoods track by neighborhood.uuid"
                       class="form-control" id="neighborhood" type="text" required>
               </select>
             </div>

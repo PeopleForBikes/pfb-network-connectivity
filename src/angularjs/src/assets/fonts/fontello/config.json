@@ -111,6 +111,18 @@
       "src": "iconic"
     },
     {
+      "uid": "bbfb51903f40597f0b70fd75bc7b5cac",
+      "css": "trash",
+      "code": 61944,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "41087bc74d4b20b55059c60a33bf4008",
+      "css": "edit",
+      "code": 59400,
+      "src": "fontawesome"
+    },
+    {
       "uid": "4e55a871194b042a2aeebd439e4a209c",
       "css": "check",
       "code": 59395,

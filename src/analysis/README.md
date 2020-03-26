@@ -2,10 +2,11 @@
 
 ## Docker
 
-To run the analysis in docker, first build the docker image:
+To run the analysis in docker, first build the docker image.
 
+From the `src` folder, run
 ```bash
-docker build -t pfb .
+docker build -t pfb -f analysis/Dockerfile .
 ```
 
 Then run the analysis as follows:

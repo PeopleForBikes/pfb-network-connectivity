@@ -113,7 +113,7 @@ function ec_export_destination_geojson() {
   ogr2ogr -f GeoJSON "${FILENAME}" -skipfailures \
           -t_srs EPSG:4326 \
           "PG:host=${NB_POSTGRESQL_HOST} dbname=${NB_POSTGRESQL_DB} user=${NB_POSTGRESQL_USER}" \
-          -sql "select *, geom_pt from ${EXPORT_TABLENAME}"
+          -sql "select * from ${EXPORT_TABLENAME}"
 }
 
 if [ "${BASH_SOURCE[0]}" = "${0}" ]

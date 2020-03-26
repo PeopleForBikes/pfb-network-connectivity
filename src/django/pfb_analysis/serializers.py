@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django_countries.serializer_fields import CountryField
+from django.core.exceptions import ValidationError as ModelValidationError
 from rest_framework import serializers
 import us
 
@@ -12,6 +13,7 @@ from pfb_analysis.models import (
     CITY_FIPS_LENGTH,
 )
 from pfb_network_connectivity.serializers import PFBModelSerializer
+from .countries import use_subdivisions, subdivisions_for_country
 
 
 class PrimaryKeyReferenceRelatedField(serializers.PrimaryKeyRelatedField):
@@ -71,34 +73,52 @@ class NeighborhoodSerializer(PFBModelSerializer):
                                       default='', allow_blank=True, trim_whitespace=True)
 
     def validate(self, data):
-        """Cross-field validation that US state is set or not based on country."""
-        if data['country'] == 'US':
-            if not data['state_abbrev']:
-                raise serializers.ValidationError('State must be provided for US neighborhoods')
+        """Cross-field validation that state is set or not based on country."""
+        country = data['country']
+        state_abbrev = data['state_abbrev']
+
+        if state_abbrev:
+            if not use_subdivisions(country):
+                raise serializers.ValidationError(
+                    'State/Province should not be set for {} neighborhoods'.format(country))
+            if state_abbrev not in [s['code'] for s in subdivisions_for_country(country)]:
+                raise serializers.ValidationError(
+                    "State/Province '{}' not valid for country '{}'".format(state_abbrev, country))
+
+        if country == 'US':
             fips = data['city_fips']
             if fips:
                 if not fips.isdigit():
                     raise serializers.ValidationError(
                         'City FIPS must be a string of {fips_len} digits'
                         .format(fips_len=CITY_FIPS_LENGTH))
-                us_state = us.states.lookup(data['state_abbrev'])
+                us_state = us.states.lookup(state_abbrev)
                 if us_state and not fips.startswith(us_state.fips):
                     raise serializers.ValidationError(
-                        'City FIPS must start with state FIPS: {state_fips}'
+                        'City FIPS must start with state FIPS ({state_fips})'
                         .format(state_fips=us_state.fips))
-        else:
-            if data['state_abbrev']:
-                raise serializers.ValidationError('State can only be set for US neighborhoods')
-            if data['city_fips']:
-                raise serializers.ValidationError('City FIPS can only be set for US neighborhoods')
+        elif data['city_fips']:
+            raise serializers.ValidationError('City FIPS can only be set for US neighborhoods')
+
         return data
+
+    def save(self, *args, **kwargs):
+        """ Override the model save to convert errors raised there into serializer errors """
+        try:
+            super().save(*args, **kwargs)
+        except ModelValidationError as e:
+            try:
+                msg = '; '.join(e.messages)
+            except Exception:
+                msg = repr(e)
+            raise serializers.ValidationError(msg)
 
     class Meta:
         model = Neighborhood
         # explicitly list fields (instead of using `exclude`) to control ordering
         fields = ('uuid', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy',
-                  'name', 'label', 'organization', 'country', 'state_abbrev', 'city_fips',
-                  'boundary_file', 'visibility', 'last_job',)
+                  'name', 'label', 'label_suffix', 'organization', 'country', 'state_abbrev',
+                  'city_fips', 'boundary_file', 'visibility', 'last_job',)
         read_only_fields = ('uuid', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy',
                             'organization', 'last_job', 'name',)
 
@@ -113,7 +133,8 @@ class NeighborhoodSummarySerializer(PFBModelSerializer):
 
     class Meta:
         model = Neighborhood
-        fields = ('uuid', 'name', 'label', 'country', 'state_abbrev', 'organization', 'geom_pt',)
+        fields = ('uuid', 'name', 'label', 'label_suffix', 'country', 'state_abbrev',
+                  'organization', 'geom_pt',)
         read_only_fields = fields
 
 

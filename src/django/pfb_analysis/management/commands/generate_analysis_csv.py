@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import zip
 import csv
 from datetime import datetime
 import logging

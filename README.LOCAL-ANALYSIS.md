@@ -72,9 +72,9 @@ here's a table of the environment variables that can be set to affect the analyi
 | PFB_OSM_FILE | An exported OSM file to use instead of downloading current OSM data during the analysis | |
 | PFB_OSM_FILE_URL | A URL from which a zipped .osm file can be downloaded. Overrides PFB_OSM_FILE. If this is also left unset, the analysis will automatically pull the latest state OSM file from Geofabrik. | none |
 | NB_OUTPUT_DIR | The path, within the analysis container, to write results to. The directory will be created (if possible) if it doesn't exist. | /data/output |
-| AWS_STORAGE_BUCKET_NAME | The S3 bucket to upload results to. Requires `AWS_PROFILE` be set. | {DEV_USER}-pfb-storage-us-east-1 |
-| AWS_PROFILE | The name of the AWS profile, configured in `~/.aws` to use for uploading to S3. This can also be left unset, and the analysis run will ignore attempts to interface with AWS if no valid profile + credentials are found. | pfb |
 | PFB_JOB_ID | The job ID of an AnalysisJob triggered from Django. This should be left unset if you're running local jobs not managed by the Django dev stack. | '' |
+| AWS_PROFILE | The name of the AWS profile, configured in `~/.aws`, to use for uploading to S3. This can also be left unset, and the analysis run will ignore attempts to interface with AWS if no valid profile + credentials are found. | pfb |
+| AWS_STORAGE_BUCKET_NAME | The S3 bucket to upload results to. Ignored unless `PFB_JOB_ID` and `AWS_PROFILE` are set. | {DEV_USER}-pfb-storage-us-east-1 |
 
 ## Targeting a remote database
 

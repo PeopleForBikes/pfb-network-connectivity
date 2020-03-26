@@ -5,3 +5,16 @@
     opacity: 1;
   }
 }
+
+.animationIf.ng-enter,
+.animationIf.ng-leave {
+  transition: opacity ease-in-out 0.5s;
+}
+.animationIf.ng-enter,
+.animationIf.ng-leave.ng-leave-active {
+  opacity: 0;
+}
+.animationIf.ng-leave,
+.animationIf.ng-enter.ng-enter-active {
+  opacity: 1;
+}

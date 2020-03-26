@@ -1,14 +1,14 @@
 # Note: the Django and psycopg2 versions are repeated in requirements.txt for the benefit
 # of the analysis container. The base container and requirements file versions should be kept
 # in sync.
-FROM quay.io/azavea/django:1.11-python2.7-slim
+FROM quay.io/azavea/django:2.2-python3.6-slim
 
 MAINTAINER Azavea
 
-RUN pip install --upgrade pip
+RUN pip3 install --upgrade pip
 
 COPY requirements.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 COPY . /usr/src
 WORKDIR /usr/src

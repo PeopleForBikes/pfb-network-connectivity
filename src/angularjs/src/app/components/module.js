@@ -6,5 +6,6 @@
                     'pfb.components.auth',
                     'pfb.components.filters',
                     'pfb.components.map',
+                    'pfb.components.modals',
                     'pfb.components.thumbnailMap']);
 })();

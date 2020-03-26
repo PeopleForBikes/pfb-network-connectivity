@@ -30,7 +30,7 @@
                     </div>
                     <div class="card-details">
                         <h3>{{city.label}}</h3>
-                        <h4>{{city.state_abbrev || city.country.name}}</h4>
+                        <h4>{{city.label_suffix}}</h4>
                         <div class="network-score large">{{city.overall_score | number:0}}</div>
                         <div class="location-timestamp"><span>Last updated:</span>
                             {{city.modifiedAt | date:'MMMM dd, yyyy'}}</div>

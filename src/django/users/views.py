@@ -11,7 +11,7 @@ from django.core.signing import TimestampSigner, BadSignature
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
@@ -122,7 +122,7 @@ class PFBUserViewSet(viewsets.ModelViewSet):
             )
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @detail_route(methods=['get', 'post'])
+    @action(detail=True, methods=['get', 'post'])
     def token(self, request, pk=None):
         """Creates/Retrieves tokens
 
@@ -155,7 +155,7 @@ class PFBUserViewSet(viewsets.ModelViewSet):
             token = Token.objects.create(user=user)
             return Response(token_data(token), status=status.HTTP_201_CREATED)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def set_password(self, request, pk=None):
         """Detail ``POST`` endpoint for changing a user's password
 

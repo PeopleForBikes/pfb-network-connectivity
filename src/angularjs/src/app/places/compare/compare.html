@@ -27,7 +27,7 @@
                             <i class="icon-cross"></i>
                         </a>
                         <h3>{{place.neighborhood.label}}</h3>
-                        <h4>{{place.neighborhood.state_abbrev || place.neighborhood.country.name}}</h4>
+                        <h4>{{place.neighborhood.label_suffix}}</h4>
                         <div class="network-score large">{{place.lastJob.overall_score | number:0}}</div>
                         <div class="location-timestamp"><span>Last updated:</span>
                             {{place.lastJob.modifiedAt | date:'MMMM dd, yyyy'}}</div>

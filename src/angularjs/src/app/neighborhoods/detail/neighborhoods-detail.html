@@ -1,0 +1,81 @@
+<pfb-navbar></pfb-navbar>
+
+<div class="container">
+  <div class="row align-center">
+    <div class="column-10">
+      <h1 ng-if="!neighborhoodDetail.editing">Create Neighborhood</h1>
+      <h1 ng-if="neighborhoodDetail.editing">Edit Neighborhood Details</h1>
+      <form name="neighborhoodForm" novalidate
+            ng-submit="neighborhoodDetail.saveNeighborhood()" class="panel">
+        <div class="panel-body">
+        <div class="form-group">
+          <label for="file">File</label>
+          <input ngf-select ng-model="neighborhoodDetail.file"
+                 ngf-pattern="'.zip'" ngf-accept="'.zip'"
+                 type="file" name="file" ng-required="!neighborhoodDetail.editing">
+        </div>
+        <div class="form-group">
+          <label for="label">Label</label>
+          <input ng-model="neighborhoodDetail.neighborhood.label"
+                 class="form-control" id="label"
+                 type="text">
+        </div>
+        <div class="form-group">
+          <label for="role">Country</label>
+          <select ng-model="neighborhoodDetail.country"
+                  ng-options="country as country.name for country in neighborhoodDetail.countries
+                  track by country.alpha_2"
+                  class="form-control" id="role" type="text" required>
+          </select>
+        </div>
+        <div class="form-group animationIf"
+             ng-if="neighborhoodDetail.isDefaultCountry() ||
+                    (neighborhoodDetail.country &&
+                     neighborhoodDetail.country.subdivisions &&
+                     neighborhoodDetail.country.subdivisions.length > 0)">
+          <label for="role">State/Province
+            <span ng-if="!neighborhoodDetail.country.subdivisions_required">(optional)</span></label>
+          <select ng-model="neighborhoodDetail.state"
+                  ng-options="state as state.name for state
+                    in neighborhoodDetail.country.subdivisions track by state.code"
+                  ng-required="neighborhoodDetail.country.subdivisions_required"
+                  class="form-control" id="role" type="text">
+                  <option></option>
+          </select>
+        </div>
+        <div class="form-group animationIf" ng-if="neighborhoodDetail.isDefaultCountry()">
+          <label for="label">City FIPS</label>
+          <input ng-model="neighborhoodDetail.neighborhood.city_fips" ng-pattern="/^[0-9]{7}$/"
+                 class="form-control" id="city_fips" type="text" name="city_fips">
+          <span ng-show="neighborhoodForm.city_fips.$invalid" class="color-danger">
+            FIPS should be 7 digits, starting with the two-digit state FIPS.
+        </span>
+        </div>
+        <div class="form-group">
+          <label for="role">Visibility</label>
+          <select ng-init="neighborhoodDetail.neighborhood.visibility = 'public'"
+                  ng-model="neighborhoodDetail.neighborhood.visibility"
+                  ng-options="v[0] as v[1] for v in neighborhoodDetail.visibilities"
+                  class="form-control" id="role" type="text">
+          </select>
+        </div>
+        <div class="row">
+          <div class="column-12">
+            <button type="submit" ng-disabled="neighborhoodForm.$invalid"
+                    class="btn-primary btn">
+              <span ng-if="!neighborhoodDetail.editing">Create Neighborhood</span>
+              <span ng-if="neighborhoodDetail.editing">Save Changes</span>
+            </button>
+          </div>
+        </div>
+        </div>
+      </form>
+      <div ng-if="neighborhoodDetail.editing">
+        <h4>Geometry preview</h4>
+        <div class="neighborhood-detail-map">
+          <pfb-neighborhood-detail-map pfb-neighborhood-id="neighborhoodDetail.neighborhood.uuid"></pfb-neighborhood-detail-map>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

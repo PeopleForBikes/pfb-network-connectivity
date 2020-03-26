@@ -1,0 +1,11 @@
+<div class="modal-header">
+  <h4 class="no-margin">{{ modal.params.headerText || 'Confirm' }}</h4>
+</div>
+<div class="modal-body">
+  <p class="no-margin-top"><span ng-bind-html="modal.params.bodyText"</span></p>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default" ng-click="modal.cancel()">Cancel</button>
+  <button class="btn btn-primary"
+          ng-click="modal.ok()">{{ modal.params.confirmButtonText || 'OK' }}</button>
+</div>

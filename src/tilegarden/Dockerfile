@@ -1,4 +1,4 @@
-FROM node:8.10-slim
+FROM node:8.15-stretch-slim
 
 ENV BASE_DIR /opt/pfb/tilegarden
 

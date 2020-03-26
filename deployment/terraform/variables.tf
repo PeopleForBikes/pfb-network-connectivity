@@ -162,3 +162,6 @@ variable "tilegarden_api_gateway_domain_name" {}
 variable "cloudfront_price_class" {
   default = "PriceClass_100"
 }
+
+# Should be environment-specific and match the value in the Tilegarden .env file
+variable "tilegarden_function_name" {}

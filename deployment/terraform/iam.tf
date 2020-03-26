@@ -212,7 +212,7 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 data "aws_iam_policy_document" "lambda_invoke" {
   statement {
     effect = "Allow"
-    resources = ["*"]
+    resources = ["arn:aws:lambda:*:*:function:${var.tilegarden_function_name}"]
     actions = [
       "lambda:InvokeFunction",
     ]
@@ -263,7 +263,7 @@ data "aws_iam_policy_document" "s3_write_tile_cache" {
 }
 
 resource "aws_iam_role" "tilegarden_executor" {
-  name               = "pfb${var.environment}TilegardenExecutor"
+  name               = "${var.tilegarden_function_name}Executor"
   assume_role_policy = "${data.aws_iam_policy_document.lambda_assume_role.json}"
 }
 

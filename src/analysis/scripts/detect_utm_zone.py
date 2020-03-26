@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Accepts a polygon shapefile and finds the SRID for the UTM zone
 Based on https://github.com/jbranigan/geo-scripts-python/blob/master/latlng2utm/detect-utm-zone.py
 """
+from __future__ import print_function
+from __future__ import division
 
 import argparse
 import math
@@ -101,5 +103,6 @@ def main():
     args = parser.parse_args()
 
     get_srid(args.filename)
+
 
 main()

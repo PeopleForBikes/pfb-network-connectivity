@@ -10,26 +10,16 @@
     'use strict';
 
     /** @ngInject */
-    function PlaceListController($log, $state, $stateParams, $scope,
-                                 Pagination, AuthService, Neighborhood, AnalysisJob) {
+    function PlaceListController($log, $state, $stateParams, $scope, Pagination, AuthService,
+                                 Neighborhood, AnalysisJob, Country) {
         var ctl = this;
-
-        var defaultGroupFn = function () {
-            return 'SKIPHEADER';
-        }
 
         var sortingOptions = [
             {
                 // string that gets passed to the /api/analysis_jobs/?ordering param
-                value: 'neighborhood__state_abbrev,neighborhood__label',
+                value: 'neighborhood__label',
                 // Human readable label to show in dropdown UI
-                label: 'Alphabetical by State',
-                // A bit hacky. The value for the groupFn key corresponds to the 'iteratee' param
-                //  of https://lodash.com/docs/4.17.4#groupBy
-                // The _.groupBy keys will be used as the section headers in the list UI.
-                // If you don't want section headers, groupFn blank, the
-                // defaultGroupFn above will be used.
-                groupFn: 'state_abbrev'
+                label: 'Place name'
             }, {
                 value: '-overall_score',
                 label: 'Highest Rated'
@@ -42,6 +32,10 @@
             }, {
                 value: '-population_total',
                 label: 'Population',
+                // The value for the groupFn key corresponds to the 'iteratee' param
+                //  of https://lodash.com/docs/4.17.4#groupBy
+                // The _.groupBy keys will be used as the section headers in the list UI.
+                // If you don't want section headers, omit groupFn.
                 groupFn: function (n) {
                     var pop = n.population_total;
                     if (pop >= 500000) {
@@ -53,7 +47,6 @@
                     } else {
                         return 'Unknown';
                     }
-
                 }
             }
         ];
@@ -68,19 +61,14 @@
             DEFAULT: 'default',
             COMPARE: 'compare'
         };
-        var nextParams = {};
-        var prevParams = {};
 
         initialize();
 
         function initialize() {
             ctl.isAdminUser = AuthService.isAdminUser();
 
-            ctl.hasNext = false;
-            ctl.getNext = getNext;
-
-            ctl.hasPrev = false;
-            ctl.getPrev = getPrev;
+            ctl.getNext = null;
+            ctl.getPrev = null;
             ctl.places = [];
             ctl.searchText = '';
             ctl.mapPlaces = {};
@@ -90,6 +78,7 @@
             ctl.addPlaceToCompare = addPlaceToCompare;
             ctl.removeComparePlace = removeComparePlace;
             ctl.filterNeighborhoods = filterNeighborhoods;
+            ctl.filterByCountry = filterByCountry;
             ctl.goComparePlaces = goComparePlaces;
             ctl.isInPlaceCompare = isInPlaceCompare;
             ctl.isPlaceCompareFull = isPlaceCompareFull;
@@ -98,6 +87,18 @@
             ctl.sortingOptions = sortingOptions;
 
             ctl.getPlaces = getPlaces;
+
+            ctl.countryFilter = null;
+            ctl.stateFilter = null;
+            ctl.countries = [];
+            Country.query({has_jobs: true}).$promise.then(function(response) {
+                ctl.countries = response;
+                // Build a {country: [subdivisions]} object for countries that have them
+                ctl.states = _(ctl.countries)
+                    .filter(function (c) { return c.subdivisions; })
+                    .map(function (c) { return [c.alpha_2, c.subdivisions]; })
+                    .fromPairs().value();
+            });
 
             getPlaces(true);
         }
@@ -195,11 +196,22 @@
             getPlaces(false);
         }
 
+        function filterByCountry() {
+            ctl.stateFilter = null;
+            filterNeighborhoods();
+        }
+
         function getPlaces(fetchComparisonPlaces, params) {
             params = params || _.merge({}, defaultParams);
             params.ordering = ctl.sortBy.value;
             if (ctl.searchText) {
                 params.search = ctl.searchText;
+            }
+            if (ctl.countryFilter) {
+                params.neighborhood__country=ctl.countryFilter;
+            }
+            if (ctl.stateFilter) {
+                params.neighborhood__state_abbrev=ctl.stateFilter;
             }
 
             AnalysisJob.query(params).$promise.then(function(data) {
@@ -213,25 +225,17 @@
                     return neighborhood;
                 });
                 setMapPlaces(places);
-                var groupedPlaces = _.groupBy(places, ctl.sortBy.groupFn || defaultGroupFn);
+
+                // Get the grouping function, or fall back to using a keyword that groups
+                // everything together and tells the template to omit sections labels.
+                var groupFn = ctl.sortBy.groupFn || function () { return 'SKIPHEADER'; };
+
+                var groupedPlaces = _.groupBy(places, groupFn);
                 ctl.sections = _.keys(groupedPlaces).sort();
                 ctl.places = groupedPlaces;
 
-                if (data.next) {
-                    ctl.hasNext = true;
-                    nextParams = Pagination.getLinkParams(data.next);
-                } else {
-                    ctl.hasNext = false;
-                    nextParams = {};
-                }
-
-                if (data.previous) {
-                    ctl.hasPrev = true;
-                    prevParams = Pagination.getLinkParams(data.previous);
-                } else {
-                    ctl.hasPrev = false;
-                    prevParams = {};
-                }
+                ctl.getNext = pageButton('next', data);
+                ctl.getPrev = pageButton('previous', data);
 
                 if (fetchComparisonPlaces) {
                     getComparisonPlaces();
@@ -239,16 +243,18 @@
             });
         }
 
-        function getNext() {
-            var params = _.merge({}, defaultParams, nextParams);
-            $state.go('places.list', params, {notify: false});
-            getPlaces(false, params);
-        }
-
-        function getPrev() {
-            var params = _.merge({}, defaultParams, prevParams);
-            $state.go('places.list', params, {notify: false});
-            getPlaces(false, params);
+        // Returns a function to go the next or previous page, to be used by the pagination buttons,
+        // or 'null' if the data says there are no more pages in the given direction.
+        function pageButton(direction, data) {
+            if (!data[direction]) {
+                return null;
+            }
+            return function() {
+                var pageParams = Pagination.getLinkParams(data[direction])
+                var params = _.merge({}, defaultParams, pageParams);
+                $state.go('places.list', params, {notify: false});
+                getPlaces(false, params);
+            };
         }
 
         // Must set ctl.mapPlaces via this so that the object ref gets updated

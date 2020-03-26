@@ -1,4 +1,4 @@
-FROM node:6.9.5-wheezy
+FROM node:6.17-stretch
 
 MAINTAINER Azavea
 

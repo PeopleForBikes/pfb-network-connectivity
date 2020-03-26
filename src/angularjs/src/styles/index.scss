@@ -1,4 +1,10 @@
 /**
+ * Basic Bootstrap definitions. Importing them first lets our project versions take precendence.
+**/
+@import "../../bower_components/bootstrap-sass-official/assets/stylesheets/bootstrap/variables";
+@import "../../bower_components/bootstrap-sass-official/assets/stylesheets/bootstrap/mixins";
+
+/**
  * Utils
 **/
 @import
@@ -58,3 +64,10 @@
 **/
 @import
   "base/print";
+
+/**
+ * Modals
+ * Importing this last avoids some of the styles getting clobbered by more general ones
+ * defined elsewhere (like .fade.in)
+**/
+@import "../../bower_components/bootstrap-sass-official/assets/stylesheets/bootstrap/modals";

@@ -1,6 +1,12 @@
 from __future__ import unicode_literals
+from __future__ import division
 
+from builtins import next
+from builtins import str
+from builtins import range
+from past.builtins import basestring
 from datetime import datetime
+import io
 import json
 import logging
 import math
@@ -16,6 +22,8 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
 from django.contrib.postgres.fields import JSONField
 from django.core.files import File
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.text import slugify
 
 import botocore
@@ -23,7 +31,6 @@ import boto3
 from django_countries.fields import CountryField
 import fiona
 from fiona.crs import from_epsg
-from localflavor.us.models import USStateField
 import us
 
 from pfb_network_connectivity.models import PFBModel
@@ -48,18 +55,33 @@ def get_neighborhood_file_upload_path(obj, filename):
 
     Upload file path should be unique for the organization.
 
-    Maintain backwards compatibility for previously-uploaded bounds with only state and no country
-    by not adding country to file path, but instead supporting paths to bounds outside the US
-    by using the three-letter country abbreviation instead of two-letter state abbreviation
-    in the file path.
+    To maintain backwards compatibility for previously-uploaded bounds when there was no country
+    field, US cities are under their two-letter state abbreviations and non-US cities are under
+    their 3-letter country codes (to avoid conflicts like CA being both Canada and California).
 
-    Use three-letter country abbreviations instead of deafult two to avoid any conflicts with
-    two-letter state abbreviations (i.e., CA might be Canada or California.)
+    For non-US neighborhoods with state/province set, both country and state go in the path,
+    with country still the 3-letter code.
+
+    So the formats will be:
+    US neighborhoods: org/ST/name.zip
+    Non-US with no state: org/CRY/name.zip  (pretend that's the alpha_3 for "Country")
+    Non-US with state: org/CRY/ST/name.zip
     """
-    return 'neighborhood_boundaries/{0}/{1}/{2}{3}'.format(slugify(obj.organization.name),
-                                                           obj.state_abbrev or obj.country.alpha3,
-                                                           obj.name,
-                                                           os.path.splitext(filename)[1])
+    if obj.country == 'US' or not obj.state_abbrev:
+        return 'neighborhood_boundaries/{0}/{1}/{2}{3}'.format(
+            slugify(obj.organization.name),
+            obj.state_abbrev or obj.country.alpha3,
+            obj.name,
+            os.path.splitext(filename)[1]
+        )
+    else:
+        return 'neighborhood_boundaries/{0}/{1}/{2}/{3}{4}'.format(
+            slugify(obj.organization.name),
+            obj.country.alpha3,
+            obj.state_abbrev,
+            obj.name,
+            os.path.splitext(filename)[1]
+        )
 
 
 def get_batch_shapefile_upload_path(organization_name, filename):
@@ -122,7 +144,7 @@ def create_environment(**kwargs):
     Writes argument pairs to an array {name, value} objects, which is what AWS wants for
     environment overrides.
     """
-    return [{'name': k, 'value': v} for k, v in kwargs.iteritems()]
+    return [{'name': k, 'value': v} for k, v in kwargs.items()]
 
 
 class Neighborhood(PFBModel):
@@ -131,7 +153,7 @@ class Neighborhood(PFBModel):
     def __str__(self):
         return "<Neighborhood: {} ({})>".format(self.name, self.organization.name)
 
-    class Visibility(object):
+    class Visibility:
         PUBLIC = 'public'
         PRIVATE = 'private'
         HIDDEN = 'hidden'
@@ -154,24 +176,23 @@ class Neighborhood(PFBModel):
                                      on_delete=models.CASCADE)
     country = CountryField(default='US',
                            help_text='The country of the uploaded neighborhood')
-    state_abbrev = USStateField(help_text='The state of the uploaded neighborhood, if in the US',
-                                blank=True, null=True)
+    state_abbrev = models.CharField(help_text='The state/province of the uploaded neighborhood',
+                                    blank=True, null=True, max_length=10)
     city_fips = models.CharField(max_length=CITY_FIPS_LENGTH, blank=True, default='')
     boundary_file = models.FileField(max_length=1024,
                                      upload_to=get_neighborhood_file_upload_path,
-                                     help_text='A zipped shapefile boundary to run the ' +
+                                     help_text='A zipped shapefile boundary to run the '
                                                'bike network analysis on')
     visibility = models.CharField(max_length=10,
                                   choices=Visibility.CHOICES,
                                   default=Visibility.PUBLIC)
     last_job = models.ForeignKey('AnalysisJob',
                                  related_name='last_job_neighborhood',
-                                 on_delete=models.CASCADE, blank=True, null=True)
+                                 on_delete=models.SET_NULL, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         """ Override to do validation checks before saving """
-        if not self.name:
-            self.name = self.name_for_label(self.label)
+        self.name = self.name_for_label(self.label)
         self.full_clean()
         self._set_geom_from_boundary_file()
         super(Neighborhood, self).save(*args, **kwargs)
@@ -206,14 +227,12 @@ class Neighborhood(PFBModel):
                 for shpfile in shpfiles:
                     if shpfile.startswith(file_name):
                         zip_handle.write(os.path.join(tmpdir, shpfile), shpfile)
-            boundary_file = File(open(zip_filename))
+            boundary_file = File(open(zip_filename, 'rb'))
             self.boundary_file = boundary_file
             self.geom = geom
             self.geom_simple = simplify_geom(geom)
             self.geom_pt = geom.centroid
             self.save()
-        except:
-            raise
         finally:
             if boundary_file:
                 boundary_file.close()
@@ -255,6 +274,18 @@ class Neighborhood(PFBModel):
         """
         return us.states.lookup(self.state_abbrev)
 
+    @property
+    def label_suffix(self):
+        """ State/province (if applicable) and country suffix for display label.
+
+        State/province isn't collected for some countries, and is optional for others, so
+        sometimes this is just the country.
+        """
+        elements = [self.country.code]
+        if self.state_abbrev:
+            elements.insert(0, self.state_abbrev)
+        return ', '.join(elements)
+
     @classmethod
     def name_for_label(cls, label):
         return slugify(label)
@@ -268,30 +299,43 @@ class Neighborhood(PFBModel):
         No explicit error handling/logging, will raise original exception if failure
 
         """
-        if overwrite or (self.boundary_file and not self.geom):
-            try:
-                tmpdir = tempfile.mkdtemp()
-                local_zipfile = os.path.join(tmpdir, '{}.zip'.format(self.name))
-                with open(local_zipfile, 'wb') as zip_handle:
-                    zip_handle.write(self.boundary_file.read())
-                with zipfile.ZipFile(local_zipfile, 'r') as zip_handle:
-                    zip_handle.extractall(tmpdir)
-                shpfiles = [filename for filename in os.listdir(tmpdir) if filename.endswith('shp')]
-                shp_filename = os.path.join(tmpdir, shpfiles[0])
-                with fiona.open(shp_filename, 'r') as shp_handle:
-                    feature = next(shp_handle)
-                    geom = GEOSGeometry(json.dumps(feature['geometry']))
-                    if geom.geom_type == 'Polygon':
-                        geom = MultiPolygon([geom])
-                    self.geom = geom
-                    self.geom_simple = simplify_geom(geom)
-                    self.geom_pt = geom.centroid
-            finally:
-                shutil.rmtree(tmpdir, ignore_errors=True)
+        if self.geom and not overwrite and self.boundary_file and self.boundary_file._committed:
+            # If the geometry already exists, 'overwrite' isn't true, and the boundary file was
+            # already saved, there's nothing to do.
+            # Using a private property of the FileField to figure out if there has been a change
+            # to the boundary isn't ideal, but the alternative seems like it would require a lot
+            # of overloading DRF internals to get that information all the way from the request
+            # to the model save method.
+            return
+        try:
+            tmpdir = tempfile.mkdtemp()
+            local_zipfile = os.path.join(tmpdir, '{}.zip'.format(self.name))
+            with open(local_zipfile, 'wb') as zip_handle:
+                zip_handle.write(self.boundary_file.read())
+            with zipfile.ZipFile(local_zipfile, 'r') as zip_handle:
+                zip_handle.extractall(tmpdir)
+            shpfiles = [filename for filename in os.listdir(tmpdir) if filename.endswith('shp')]
+            shp_filename = os.path.join(tmpdir, shpfiles[0])
+            with fiona.open(shp_filename, 'r') as shp_handle:
+                feature = next(shp_handle)
+                geom = GEOSGeometry(json.dumps(feature['geometry']))
+                if geom.geom_type == 'Polygon':
+                    geom = MultiPolygon([geom])
+                self.geom = geom
+                self.geom_simple = simplify_geom(geom)
+                self.geom_pt = geom.centroid
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
     class Meta:
         # Note that uniqueness fields should also be used in the upload file path
         unique_together = ('name', 'country', 'state_abbrev', 'organization',)
+
+
+@receiver(post_delete, sender=Neighborhood)
+def delete_boundary_file(sender, instance, **kwargs):
+    instance.boundary_file.delete(save=False)
+    logger.info("Deleted boundary file for {}, {}".format(instance.label, instance.label_suffix))
 
 
 class AnalysisBatchManager(models.Manager):
@@ -383,7 +427,7 @@ class AnalysisBatchManager(models.Manager):
         finally:
             logger.debug('AnalysisBatch.create_from_shapefile removing temporary files...')
             shutil.rmtree(tmpdir, ignore_errors=True)
-            if isinstance(source, file):
+            if isinstance(source, io.IOBase):
                 source.close()
 
         if submit:
@@ -451,7 +495,7 @@ class AnalysisJob(PFBModel):
         return "<AnalysisJob: {status} {neighborhood}>".format(status=self.status,
                                                                neighborhood=self.neighborhood.label)
 
-    class Status(object):
+    class Status:
         CREATED = 'CREATED'
         QUEUED = 'QUEUED'
         IMPORTING = 'IMPORTING'
@@ -626,7 +670,7 @@ class AnalysisJob(PFBModel):
         # all the environment variables that this app needs, most of which are conveniently
         # prefixed with 'PFB_'
         # Set these first so they can be overridden by job specific settings below
-        environment = {key: val for (key, val) in os.environ.items()
+        environment = {key: val for (key, val) in list(os.environ.items())
                        if key.startswith('PFB_') and val is not None}
         # For the ones without the 'PFB_' prefix, send the settings rather than the original
         # environment variables because the environment variables might be None, which is not
@@ -642,12 +686,12 @@ class AnalysisJob(PFBModel):
     def run(self):
         """ Run the analysis job, configuring ENV appropriately """
         if self.status != self.Status.CREATED:
-            logger.warn('Attempt to re-run job: {}. Skipping.'.format(self.uuid))
+            logger.warning('Attempt to re-run job: {}. Skipping.'.format(self.uuid))
             return
 
         # TODO: #614 remove this check on adding support for running international jobs
         if not self.neighborhood.state:
-            logger.warn('Running jobs outside the US is not supported yet. Skipping {}.'.format(
+            logger.warning('Running jobs outside the US is not supported yet. Skipping {}.'.format(
                 self.uuid))
             self.update_status(self.Status.ERROR)
             return
@@ -674,7 +718,7 @@ class AnalysisJob(PFBModel):
         # bail out with a helpful message
         if settings.DJANGO_ENV == 'development':
             self.update_status(self.Status.QUEUED)
-            logger.warn("Can't actually run development analysis jobs on AWS. Try this:"
+            logger.warning("Can't actually run development analysis jobs on AWS. Try this:"
                         "\nPFB_JOB_ID='{PFB_JOB_ID}' PFB_CITY_FIPS='{PFB_CITY_FIPS}' PFB_S3_RESULTS_PATH='{PFB_S3_RESULTS_PATH}' "
                         "./scripts/run-local-analysis "
                         "'{PFB_SHPFILE_URL}' {PFB_STATE} {PFB_STATE_FIPS}".format(**environment))
@@ -728,6 +772,22 @@ class AnalysisJob(PFBModel):
             path=self.s3_results_path,
             filename=filename,
         )
+
+
+@receiver(post_delete, sender=AnalysisJob)
+def delete_analysisjob_s3_results(sender, instance, **kwargs):
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
+    path = instance.s3_results_path
+    delete_result = bucket.objects.filter(Prefix=path).delete()
+    try:
+        logger.info("Deleted {} results files from {}".format(
+            sum(len(batch['Deleted']) for batch in delete_result),
+            path,
+        ))
+    except KeyError:
+        # If the delete_result isn't as expected, still log a message
+        logger.info("Deleted S3 files from {}".format(path))
 
 
 class NeighborhoodWaysResults(models.Model):
@@ -815,7 +875,7 @@ class AnalysisScoreMetadata(models.Model):
 class AnalysisLocalUploadTask(PFBModel):
 
     # Front-end expects upload task status choicees to be a subest of analysis job statuses
-    class Status(object):
+    class Status:
         CREATED = 'CREATED'
         QUEUED = 'QUEUED'
         IMPORTING = 'IMPORTING'

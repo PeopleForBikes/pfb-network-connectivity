@@ -10,8 +10,8 @@
     'use strict';
 
     /** @ngInject */
-    function NeighborhoodListController($state, $stateParams, $scope, Pagination, AuthService,
-                                        Neighborhood) {
+    function NeighborhoodListController($state, $stateParams, toastr, Pagination, AuthService,
+                                        Neighborhood, ConfirmationModal) {
         var ctl = this;
 
         var defaultParams = {
@@ -77,9 +77,23 @@
             getNeighborhoods(params);
         }
 
-        function deleteUpload (Neighborhood) {
-            Neighborhood.$delete().then(function() {
+        function deleteUpload (neighborhood) {
+            ConfirmationModal.open({
+                headerText: 'Confirm Neighborhood Deletion',
+                bodyText: 'Are you sure you want to delete the <b>' +
+                          neighborhood.label + ', ' + neighborhood.label_suffix +
+                          '</b> neighborhood?<br/>' +
+                          'All associated analysis jobs will also be deleted.',
+                confirmButtonText: 'Delete'
+            })
+            .result
+            .then(function () { return neighborhood.$delete(); })
+            .then(function () {
+                toastr.success('Successfully deleted neighborhood');
                 getNeighborhoods();
+            })
+            .catch(function() {
+                toastr.error('Error deleting neighborhood');
             });
         }
 

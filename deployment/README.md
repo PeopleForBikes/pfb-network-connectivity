@@ -44,6 +44,23 @@ Then edit the file and upload the modified copy, using default server-side encry
 aws s3 cp "${ENVIRONMENT}.tfvars" "s3://${ENVIRONMENT}-pfb-config-us-east-1/terraform/terraform.tfvars" --sse
 ```
 
+### Migrations
+In some circumstances, there are availability considerations around when migrations are applied relative to the Django service getting updated.  The new definition of the Management task is normally created by `infra apply` at the same time as the new definition of the API service task.  If the new API code is compatible with the pre-migration database state (e.g. an optional field is being removed, so the new code will just ignore it), you can run migrations at any time after the new tasks have been created.
+
+If the new code is incompatible with the pre-migration database schema (e.g. a new field is being added), migrations need to be applied before the API service definitions are updated with the new code.  To do this, follow the "Deploying" instructions from the next section but instead of `./scripts/infra plan` and `./scripts/infra apply`, run `./scripts/infra plan-mgmt` and `./scripts/infra apply-mgmt`.  Then after applying migrations, run the normal `plan` and `apply` commands to deploy the rest of the services.
+
+To apply migrations, once the task has been updated:
+- Open the [Elastic Container Service](https://console.aws.amazon.com/ecs/home?region=us-east-1) console
+- Select the cluster for your target environment
+- Under the "Tasks" tab, click "Run New Task"
+- Choose the "Management" task that matches the environment
+- Under "Advanced Options > Container Overrides" set the "Command override" to `migrate`.
+- Click "Run Task"
+It will show either a green "Created tasks successfully" or a red "Run tasks failed" message at the top
+of the page.  If it fails with "Reasons : ["RESOURCE:MEMORY"].", you might need to spin up a new EC2 instance or temporarily reduce the task count to enable the migration task to run.
+
+Note: if there's no cross-compatibility at all (old code only works with old schema, new code only works with new schema), the migration will have to be modified to break it into steps that are each compatible in one direction or the other.
+
 ### Deploying
 If you're deploying new application code, first set the commit to deploy, then build and push containers:
 ```bash
@@ -66,6 +83,8 @@ Once the plan has been assembled, and you agree with the changes, apply it:
 vagrant@vagrant-ubuntu-trusty-64:~$ ./scripts/infra apply
 ```
 This will attempt to apply the plan assembled in the previous step using Amazon's APIs. In order to change specific attributes of the infrastructure, inspect the contents of the environment's configuration file in Amazon S3.
+
+
 
 ## AWS Batch
 
@@ -95,7 +114,7 @@ Next, go to 'Job queues' -> 'Create queue' then edit the form with the inputs be
 - Select a compute environment: Choose the name of the environment you just created
 Click create. The job queue should be ready pretty much immediately.
 
-Once the unmanaged compute environment has a 'VALID' status, navigate to [EC2 Container Service](https://console.aws.amazon.com/ecs/home?region=us-east-1) and copy the full name of the newly created ECS Cluster into the `batch_ecs_cluster_name` tfvar for the appropriate environment.
+Once the unmanaged compute environment has a 'VALID' status, navigate to [Elastic Container Service](https://console.aws.amazon.com/ecs/home?region=us-east-1) and copy the full name of the newly created ECS Cluster into the `batch_ecs_cluster_name` tfvar for the appropriate environment.
 
 Congratulations, the necessary resources for your environment are ready. The ECS instance configuration and autoscaling group attached to the compute environment are managed by Terraform.
 
@@ -131,7 +150,7 @@ $ cp ./src/tilegarden/.env.example ./src/tilegarden/.env
 
 Edit the new file to fill in or adjust variables.  The required variables are:
 - `AWS_PROFILE`: the name of the AWS credentials profile you created above, e.g. "pfb"
-- `PROJECT_NAME`: a name to identify this deployment, which should include the environment name
+- `LAMBDA_FUNCTION_NAME`: a name to identify this deployment, which should include the environment name
 - `LAMBDA_REGION`
 - `LAMBDA_ROLE`: the role the Lambda function should run under. Use the one created by Terraform, e.g. "pfbStagingTilegardenExecutor"
 

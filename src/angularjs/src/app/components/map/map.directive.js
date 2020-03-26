@@ -35,12 +35,12 @@
                 }
 
                 if (changes.pfbMapBaselayer && changes.pfbMapBaselayer.currentValue) {
-                    if (ctl.baselayer) {
-                        ctl.map.removeLayer(ctl.baselayer);
-                        ctl.baselayer = null;
+                    if (ctl.baseLayer) {
+                        ctl.map.removeLayer(ctl.baseLayer);
+                        ctl.baseLayer = null;
                     }
-                    ctl.baselayer = changes.pfbMapBaselayer.currentValue;
-                    ctl.map.addLayer(ctl.baselayer);
+                    ctl.baseLayer = changes.pfbMapBaselayer.currentValue;
+                    ctl.map.addLayer(ctl.baseLayer);
                 }
             }
         };

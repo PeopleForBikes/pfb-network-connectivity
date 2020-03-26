@@ -1,18 +1,20 @@
-FROM quay.io/azavea/postgis:postgres9.6-postgis2.3
+FROM quay.io/azavea/postgis:2.3-postgres9.6-slim
 MAINTAINER Azavea
 LABEL type=pfb-analysis
-
-ENV GIT_BRANCH_OSM2PGROUTING osm2pgrouting-2.1.0
-ENV GIT_BRANCH_OSM2PGSQL 0.90.1
-ENV GIT_BRANCH_QUANTILE master
 
 # Copy django requirements (will copy the rest later, so that any change to
 # the code doesn't trigger re-running the whole provisioning step)
 COPY ./django/requirements.txt /opt/pfb/django/requirements.txt
 
+# Install apt and pip packages
+# Installs everything then removes the build dependencies all in one gigantic command to
+# avoid making a build layer that includes the dependencies that we don't need to keep permanently.
+# The 'hash -r' after upgrading pip is because otherwise the subsequent 'pip install' command will
+# still use the old version.
 RUN set -xe && \
     BUILD_DEPS=" \
         postgresql-server-dev-$PG_MAJOR \
+        postgresql-server-dev-12 \
         libexpat1-dev \
         cmake \
         libboost-all-dev make \
@@ -36,25 +38,25 @@ RUN set -xe && \
         parallel \
         postgresql-plpython-$PG_MAJOR \
         postgresql-$PG_MAJOR-pgrouting \
-        python-gdal \
+        python3-gdal \
         gdal-bin \
         unzip \
         zip \
         postgis \
-        python-dev \
-        python-pip" && \
+        python \
+        python3-dev \
+        python3-pip \
+        osm2pgrouting \
+        osm2pgsql" && \
     apt-get update && apt-get install -y ${BUILD_DEPS} ${DEPS} --no-install-recommends && \
     \
     mkdir /tmp/build/ && cd /tmp/build && \
-      git clone --branch $GIT_BRANCH_OSM2PGROUTING https://github.com/pgRouting/osm2pgrouting.git && \
-        (cd osm2pgrouting && mkdir build && cmake -H. -Bbuild && cd build && make install) && \
-      git clone --branch $GIT_BRANCH_OSM2PGSQL https://github.com/openstreetmap/osm2pgsql.git && \
-        (cd osm2pgsql && mkdir build && cd build && cmake ../ && make install) && \
-      git clone --branch $GIT_BRANCH_QUANTILE https://github.com/tvondra/quantile.git && \
-        (cd quantile && make install) && \
+    git clone --branch master https://github.com/tvondra/quantile.git && \
+      (cd quantile && make install) && \
     \
-    pip install --upgrade pip && \
-    pip install -r /opt/pfb/django/requirements.txt && \
+    pip3 install --upgrade pip setuptools && \
+    hash -r && \
+    pip3 install -r /opt/pfb/django/requirements.txt && \
     \
     cd /tmp/ && rm -rf /tmp/build/ /var/lib/apt/lists/* && \
     apt-get purge -y --auto-remove ${BUILD_DEPS}

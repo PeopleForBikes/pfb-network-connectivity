@@ -50,7 +50,7 @@ SET     functional_class = 'path'
 FROM    neighborhood_osm_full_line osm
 WHERE   neighborhood_ways.osm_id = osm.osm_id
 AND     osm.highway = 'footway'
-AND     osm.bicycle = 'designated'
+AND     osm.bicycle IN ('yes','permissive', 'designated')
 AND     (osm.access IS NULL OR osm.access NOT IN ('no','private'))
 AND     COALESCE(width_ft,0) >= 8;
 
@@ -59,7 +59,7 @@ SET     functional_class = 'path'
 FROM    neighborhood_osm_full_line osm
 WHERE   neighborhood_ways.osm_id = osm.osm_id
 AND     osm.highway='service'
-AND     osm.bicycle='designated';
+AND     osm.bicycle IN ('yes','permissive', 'designated');
 
 UPDATE  neighborhood_ways
 SET     functional_class = 'living_street'

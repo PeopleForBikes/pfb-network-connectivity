@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 A script to cache Geofabrik OSM extracts on S3 to avoid downloading the same file repeatedly.
@@ -9,6 +9,9 @@ Given a local directory, a state, and an S3 bucket, it
 - If it's not there, downloads the file from Geofabrik and uploads it to the bucket, writing then
   clearing a lockfile to prevent other jobs from trying to do it at the same time.
 """
+from __future__ import print_function
+from builtins import str
+from builtins import range
 
 import argparse
 import datetime
@@ -47,7 +50,9 @@ def compose_lockfile_key(state_abbrev):
 
 def read_from_s3(bucket, key):
     try:
-        return S3_CLIENT.get_object(Bucket=bucket, Key=key)['Body'].read()
+        # botocore.response.StreamingBody.read() returns a bytestring, so it needs decoding
+        # to make it a proper Python 3 string
+        return S3_CLIENT.get_object(Bucket=bucket, Key=key)['Body'].read().decode('utf-8')
     except S3_CLIENT.exceptions.NoSuchKey:
         return None
 
@@ -67,7 +72,7 @@ def wait_for_lockfile(bucket, state_abbrev):
     """
     logger.debug('Checking for OSM extract lockfile for {}'.format(state_abbrev))
     key = compose_lockfile_key(state_abbrev)
-    for attempt in xrange(LOCKFILE_POLLING_ATTEMPTS):
+    for attempt in range(LOCKFILE_POLLING_ATTEMPTS):
         if read_from_s3(bucket, key) is None:
             return None
         logger.info('Lockfile exists for {}, waiting'.format(state_abbrev))
@@ -90,7 +95,8 @@ def get_lockfile(bucket, state_abbrev):
     lockfile_content = '{} {}'.format(os.getpid(), datetime.datetime.now())
     try:
         write_to_s3(bucket, key, lockfile_content)
-        sleep(30)  # The likely race condition window is probably <2 seconds, but caution doesn't hurt
+        # The likely race condition window is probably <2 seconds, but caution doesn't hurt
+        sleep(30)
         if read_from_s3(bucket, key) == lockfile_content:
             return key
         else:
@@ -166,7 +172,7 @@ def main():
         logger.debug('Shortcut direct Geofabrik download: S3_CLIENT={}, bucket={}'
                      .format(str(S3_CLIENT), bucket))
         osm_extract_filepath = download_from_geofabrik(local_dir, state_abbrev)
-        print osm_extract_filepath
+        print(osm_extract_filepath)
         return
 
     # First try to download the file, since that's all we ultimately want to accomplish
@@ -197,7 +203,7 @@ def main():
                 # If we have the lock, we want to make sure we release it even on error
                 delete_from_s3(bucket, lockfile_key)
 
-    print osm_extract_filepath
+    print(osm_extract_filepath)
 
 
 main()

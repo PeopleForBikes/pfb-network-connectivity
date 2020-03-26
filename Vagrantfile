@@ -25,7 +25,7 @@ ROOT_VM_DIR = "/vagrant"
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "bento/ubuntu-16.04"
   config.vm.hostname = "pfb-network-connectivity"
   config.vm.network :private_network, ip: ENV.fetch("PFB_PRIVATE_IP", "192.168.111.111")
 
@@ -46,14 +46,6 @@ Vagrant.configure("2") do |config|
     s.args = "'#{ROOT_VM_DIR}'"
   end
 
-  # Upgrade ssl-related packages so that Ansible will install
-  # If this provisioner is no longer necessary, the install_pip.sh provisioner can be removed
-  # as well.
-  # We need to pre-install pip manually since it isn't installed until the ansible_local
-  # provisioner runs.
-  config.vm.provision "shell", path: 'deployment/vagrant/install_pip.sh'
-  config.vm.provision "shell", inline: 'pip install urllib3 pyopenssl ndg-httpsclient pyasn1'
-
   config.vm.provision "ansible_local" do |ansible|
     ansible.playbook = "deployment/ansible/pfb.yml"
     ansible.galaxy_role_file = "deployment/ansible/roles.yml"
@@ -63,10 +55,10 @@ Vagrant.configure("2") do |config|
                              "dev_user=#{ENV.fetch("USER", "vagrant")}"]
 
     # local arguments
-    # Ubuntu trusty base box already has system python + pip installed, no need to reinstall here
+    # Ubuntu base box already has system python + pip installed, no need to reinstall here
     ansible.install = true
     ansible.install_mode = "pip"
-    ansible.version = "2.2.1.0"
+    ansible.version = "2.8.7"
   end
 
   config.vm.provider :virtualbox do |v|

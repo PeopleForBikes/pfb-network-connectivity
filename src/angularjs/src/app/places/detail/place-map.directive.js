@@ -13,7 +13,7 @@
 
             // set center and zoom level by zooming to fit geojson polygon bounds, once loaded
             ctl.boundsConus = MapConfig.conusBounds;
-            ctl.baselayer = L.tileLayer(
+            ctl.baseLayer = L.tileLayer(
                 MapConfig.baseLayers.Positron.url, {
                     attribution: MapConfig.baseLayers.Positron.attribution,
                     maxZoom: MapConfig.conusMaxZoom
@@ -80,7 +80,7 @@
 
             if (!ctl.layerControl) {
                 ctl.layerControl = L.control.groupedLayers({
-                    'Positron': ctl.baselayer,
+                    'Positron': ctl.baseLayer,
                     'Satellite': satelliteLayer
                 }, {
                     'Overlays': {},

@@ -7,7 +7,7 @@ from botocore.exceptions import BotoCoreError
 logger = logging.getLogger(__name__)
 
 
-class JobState(object):
+class JobState:
     """ AWS Batch Job States
 
     See: http://docs.aws.amazon.com/batch/latest/userguide/jobs.html

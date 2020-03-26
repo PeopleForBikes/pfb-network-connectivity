@@ -7,5 +7,6 @@ services:
         dockerfile: Dockerfile
       environment:
         - AWS_PROFILE=pfb
+        - AWS_DEFAULT_REGION
       volumes:
         - $HOME/.aws:/root/.aws:ro

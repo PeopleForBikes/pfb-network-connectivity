@@ -16,7 +16,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     else
     	echo "running python tests..."
     	docker-compose -f "${DIR}/../docker-compose.yml" run \
-    		--rm --entrypoint "python manage.py test --noinput" django
+			--rm --entrypoint "python3 manage.py test --noinput" django
 
         echo "running Tilegarden tests..."
         docker-compose run --rm --no-deps tilegarden yarn test

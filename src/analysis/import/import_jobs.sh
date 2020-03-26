@@ -45,7 +45,7 @@ function import_job_data() {
 
     NB_STATE_ABBREV="${1}"
     NB_DATA_TYPE="${2:-main}"    # Either 'main' or 'aux'
-    NB_JOB_FILENAME="${NB_STATE_ABBREV}_od_${NB_DATA_TYPE}_JT00_2014.csv"
+    NB_JOB_FILENAME="${NB_STATE_ABBREV}_od_${NB_DATA_TYPE}_JT00_2017.csv"
 
     if [ -f "/data/${NB_JOB_FILENAME}.gz" ]; then
         JOB_DOWNLOAD="/data/${NB_JOB_FILENAME}.gz"
@@ -59,9 +59,9 @@ function import_job_data() {
         WGET_STATUS=$?
         set -e
         if [[ $WGET_STATUS -eq 8 ]]; then
-            echo "No 2014 job data available, falling back to 2013 data..."
+            echo "No 2017 job data available, falling back to 2016 data..."
             JOB_DOWNLOAD="${NB_TEMPDIR}/${NB_JOB_FILENAME}.gz"
-            NB_JOB_FILENAME="${NB_STATE_ABBREV}_od_${NB_DATA_TYPE}_JT00_2013.csv"
+            NB_JOB_FILENAME="${NB_STATE_ABBREV}_od_${NB_DATA_TYPE}_JT00_2016.csv"
             wget -nv -O "${JOB_DOWNLOAD}" "http://lehd.ces.census.gov/data/lodes/LODES7/${NB_STATE_ABBREV}/od/${NB_JOB_FILENAME}.gz"
         fi
     fi

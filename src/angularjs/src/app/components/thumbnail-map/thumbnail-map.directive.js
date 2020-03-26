@@ -18,7 +18,7 @@
 
             // will set center and zoom level by zooming to fit geojson polygon bounds when loaded
             ctl.boundsConus = MapConfig.conusBounds;
-            ctl.baselayer = L.tileLayer(
+            ctl.baseLayer = L.tileLayer(
                 MapConfig.baseLayers.Positron.url, {
                     attribution: MapConfig.baseLayers.Positron.attribution,
                     maxZoom: MapConfig.conusMaxZoom
@@ -57,7 +57,7 @@
         };
 
         function loadBounds(uuid) {
-            Neighborhood.bounds({uuid: uuid}).$promise.then(function (data) {
+            Neighborhood.bounds({uuid: uuid, simplified: true}).$promise.then(function (data) {
                 ctl.boundsLayer = L.geoJSON(data, {});
                 ctl.map.addLayer(ctl.boundsLayer);
             });

@@ -14,6 +14,7 @@ Login to a running Docker container\'s shell.
 Options:
     database   Database container
     django     Django container
+    django-q   Django Q container
     angularjs  AngularJS container
     nginx      Nginx container
     tilegarden Tilegarden container
@@ -22,7 +23,7 @@ Options:
 }
 
 case $1 in
-    django|nginx|angularjs|tilegarden) NORMAL_CONTAINER=1 ;;
+    django|django-q|nginx|angularjs|tilegarden) NORMAL_CONTAINER=1 ;;
     database)         DATABASE_CONTAINER=1 ;;
     help|*)           usage; exit 1 ;;
 esac

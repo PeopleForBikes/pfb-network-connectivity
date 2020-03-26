@@ -20,7 +20,7 @@ from rest_framework.authtoken.models import Token
 from pfb_network_connectivity.models import PFBModel
 
 
-class OrganizationTypes(object):
+class OrganizationTypes:
     """Enum-like object to track organization types"""
 
     ADMIN = 'ADMIN'
@@ -71,7 +71,7 @@ class Organization(PFBModel):
         super(Organization, self).save(*args, **kwargs)
 
 
-class UserRoles(object):
+class UserRoles:
     """Enum-like object to track acceptable user roles"""
     ADMIN = 'ADMIN'
     ORGADMIN = 'ORGADMIN'

@@ -3,6 +3,7 @@
 set -e
 
 export SHELL  # makes 'parallel' stop complaining about $SHELL being unset
+mkdir -p ~/.parallel && touch ~/.parallel/will-cite  # and stop yelling about academic citations
 
 cd `dirname $0`
 source utils.sh

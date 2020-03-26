@@ -90,7 +90,7 @@ class IsAdminOrSelfOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         """Allow access to admins or if safe method"""
 
-        if not request.user or not request.user.is_authenticated():
+        if not request.user or not request.user.is_authenticated:
             return False
 
         if is_admin(request.user) or is_org_admin(request.user):
@@ -104,7 +104,7 @@ class IsAdminOrSelfOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         """Only allow access to own user, do not allow deleting self"""
 
-        if not request.user or not request.user.is_authenticated():
+        if not request.user or not request.user.is_authenticated:
             return False
 
         # User cannot delete themselves
@@ -141,7 +141,7 @@ class RestrictedCreate(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        if not request.user or not request.user.is_authenticated():
+        if not request.user or not request.user.is_authenticated:
             return False
 
         if 'AnalysisJobViewSet' == view.__class__.__name__:

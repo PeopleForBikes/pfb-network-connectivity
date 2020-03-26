@@ -15,7 +15,7 @@ def load_scores(job, csv_filename, key_column, skip_columns):
         for col in skip_columns:
             metric.pop(col, None)
         # Attempt to convert numeric values in row to float type
-        for k, v in metric.iteritems():
+        for k, v in metric.items():
             try:
                 metric[k] = float(v)
             except ValueError:

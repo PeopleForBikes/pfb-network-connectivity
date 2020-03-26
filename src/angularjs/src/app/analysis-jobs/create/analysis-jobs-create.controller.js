@@ -10,11 +10,12 @@
     'use strict';
 
     /** @ngInject */
-    function AnalysisJobCreateController($state, $filter, toastr, AnalysisJob, Neighborhood) {
+    function AnalysisJobCreateController($state, $filter, toastr, AnalysisJob, Neighborhood,
+                                         parseErrorFilter) {
         var ctl = this;
 
         function initialize() {
-            ctl.neighborhoods = Neighborhood.all().$promise.then(function(data) {
+            ctl.neighborhoods = Neighborhood.all({ordering: 'label'}).$promise.then(function(data) {
                 ctl.neighborhoods = data.results;
             });
         }
@@ -35,7 +36,9 @@
                 $state.go('admin.analysis-jobs.list');
             }).catch(function(error) {
                 toastr.clear(submitToast);
-                toastr.error('Error submitting analysis job: ' + error);
+                var errorDetails = parseErrorFilter(error);
+                toastr.error('Error submitting analysis job' +
+                             (errorDetails ? ': <br/>' + errorDetails : ''));
             });
         };
     }

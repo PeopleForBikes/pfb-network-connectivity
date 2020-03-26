@@ -1,3 +1,4 @@
+from builtins import str
 from django.core.management.base import BaseCommand
 
 from copy import deepcopy

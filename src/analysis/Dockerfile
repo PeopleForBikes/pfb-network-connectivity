@@ -14,6 +14,7 @@ COPY ./django/requirements.txt /opt/pfb/django/requirements.txt
 RUN set -xe && \
     BUILD_DEPS=" \
         postgresql-server-dev-$PG_MAJOR \
+        postgresql-server-dev-12 \
         libexpat1-dev \
         cmake \
         libboost-all-dev make \

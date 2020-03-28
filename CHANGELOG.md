@@ -9,8 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Upcoming release]
 
+## [0.13.0] - 2020-02-14
+
 #### Changed
 - Upgraded Django and psycopg2 package versions and switched to psycopg2-binary
+- Upgraded ansible-docker module to 5.0.0, Docker to 18.*, and Docker Compose to 1.23.*
+- Fix lane handling in analysis
+- Fix population scores for destinations in analysis
+- Add favicon
+- Increase max zoomlevel from 17 to 19
 
 ## [0.12.0] - 2019-12-30
 
@@ -119,7 +126,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.1.0] - 2017-04-21
 
 
-[Upcoming release]: https://github.com/azavea/pfb-network-connectivity/compare/0.12.0...HEAD
+[Upcoming release]: https://github.com/azavea/pfb-network-connectivity/compare/0.13.0...HEAD
+[0.13.0]: https://github.com/azavea/pfb-network-connectivity/compare/0.12.0...0.13.0
 [0.12.0]: https://github.com/azavea/pfb-network-connectivity/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/azavea/pfb-network-connectivity/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/azavea/pfb-network-connectivity/compare/0.9.2...0.10.0

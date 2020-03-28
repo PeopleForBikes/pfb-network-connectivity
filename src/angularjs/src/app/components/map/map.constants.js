@@ -29,7 +29,7 @@
         }
     },
     conusBounds: [[24.396308, -124.848974], [49.384358, -66.885444]],
-    conusMaxZoom: 17,
+    conusMaxZoom: 19,
     legends: {
         census_blocks: {
             position: 'bottomright',

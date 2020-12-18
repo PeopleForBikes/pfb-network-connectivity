@@ -8,6 +8,14 @@
 --      :step3 - Third scoring step
 --      :score3 - Score for third step
 ----------------------------------------
+
+-- add basic job count for the census block to census blocks table
+UPDATE neighborhood_census_blocks
+SET     job_count = 
+            SELECT employment.jobs 
+            FROM neighborhood_census_block_jobs employment
+            WHERE neighborhood_census_blocks.blockid10 = employment.blockid10
+
 -- raw numbers
 UPDATE  neighborhood_census_blocks
 SET     emp_low_stress = (

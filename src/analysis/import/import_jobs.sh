@@ -46,7 +46,7 @@ function import_job_data() {
     NB_STATE_ABBREV="${1}"
     NB_DATA_TYPE="${2:-main}"    # Either 'main' or 'aux'
 
-    NB_JOB_FILENAME="${NB_STATE_ABBREV}_od_${NB_DATA_TYPE}_JT00_2017.csv"
+    NB_JOB_FILENAME="${NB_STATE_ABBREV}_od_${NB_DATA_TYPE}_JT00_2018.csv"
     S3_PATH="s3://${AWS_STORAGE_BUCKET_NAME}/data/${NB_JOB_FILENAME}.gz"
 
     if [ -f "/data/${NB_JOB_FILENAME}.gz" ]; then
@@ -62,10 +62,10 @@ function import_job_data() {
         wget -nv -O "${JOB_DOWNLOAD}" "http://lehd.ces.census.gov/data/lodes/LODES7/${NB_STATE_ABBREV}/od/${NB_JOB_FILENAME}.gz"
         WGET_STATUS=$?
         set -e
-        # If the 2017 file isn't there (SD and AK), do the check/download/cache again for 2016
+        # If the 2018 file isn't there (SD and AK), do the check/download/cache again for 2017
         if [[ $WGET_STATUS -eq 8 ]]; then
-            echo "No 2017 job data available, falling back to 2016 data..."
-            NB_JOB_FILENAME="${NB_STATE_ABBREV}_od_${NB_DATA_TYPE}_JT00_2016.csv"
+            echo "No 2018 job data available, falling back to 2017 data..."
+            NB_JOB_FILENAME="${NB_STATE_ABBREV}_od_${NB_DATA_TYPE}_JT00_2017.csv"
             S3_PATH="s3://${AWS_STORAGE_BUCKET_NAME}/data/${NB_JOB_FILENAME}.gz"
             JOB_DOWNLOAD="${NB_TEMPDIR}/${NB_JOB_FILENAME}.gz"
             if [ "${AWS_STORAGE_BUCKET_NAME}" ] && aws s3 ls "${S3_PATH}"; then

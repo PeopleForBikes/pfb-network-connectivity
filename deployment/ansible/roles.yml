@@ -1,5 +1,3 @@
-- src: azavea.aws-cli
-  version: 0.1.0
 - src: azavea.docker
   version: 5.0.0
 - src: azavea.terraform

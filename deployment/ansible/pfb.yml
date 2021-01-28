@@ -7,8 +7,8 @@
       apt: update_cache=yes
 
   roles:
-    - { role: "azavea.aws-cli" }
     - { role: "azavea.terraform" }
+    - { role: "pfb.aws-cli" }
     - { role: "pfb.env" }
     - { role: "pfb.docker" }
     - { role: "pfb.boto3" }

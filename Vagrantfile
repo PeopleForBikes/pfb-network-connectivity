@@ -55,9 +55,10 @@ Vagrant.configure("2") do |config|
                              "dev_user=#{ENV.fetch("USER", "vagrant")}"]
 
     # local arguments
-    # Ubuntu base box already has system python + pip installed, no need to reinstall here
     ansible.install = true
     ansible.install_mode = "pip"
+    # Install pip3 for the system version of python3, and make sure 'pip3' works as well
+    ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/3.5/get-pip.py | sudo python3 && sudo ln -s -f /usr/local/bin/pip /usr/local/bin/pip3"
     ansible.version = "2.8.7"
   end
 

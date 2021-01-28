@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Upcoming release]
 
+## [0.14.0] - 2020-12-21
+
 #### Changed
 - Add filter to Neighborhood List
 - Remove filters for created_by, modified_by and fips_code for matching an AnalysisJob to existing Neighborhood records
@@ -136,7 +138,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.1.0] - 2017-04-21
 
 
-[Upcoming release]: https://github.com/azavea/pfb-network-connectivity/compare/0.13.0...HEAD
+[Upcoming release]: https://github.com/azavea/pfb-network-connectivity/compare/0.14.0...HEAD
+[0.14.0]: https://github.com/azavea/pfb-network-connectivity/compare/0.13.0...0.14.0
 [0.13.0]: https://github.com/azavea/pfb-network-connectivity/compare/0.12.0...0.13.0
 [0.12.0]: https://github.com/azavea/pfb-network-connectivity/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/azavea/pfb-network-connectivity/compare/0.10.0...0.11.0
